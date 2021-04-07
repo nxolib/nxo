@@ -3,6 +3,7 @@
 -export([
           application/0
         , application/1
+        , template/1
         , is_development/0
         , version/0
         , version/1
@@ -24,6 +25,9 @@
         , is_real_list/1
         ]).
 
+-spec template(file:name_all()) -> file:filename_all().
+template(File) ->
+  nxo_template_name_cache:lookup(File).
 
 %% Retrieve the name of the NXO enabled application.
 -spec application() -> atom().

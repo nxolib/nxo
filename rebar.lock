@@ -1,0 +1,8 @@
+[{<<"nitro_cache">>,
+  {git,"git://github.com/nitrogen/nitro_cache",
+       {ref,"8a82edf08b8fc5d2514281b1032dfa8cd1dd808b"}},
+  0},
+ {<<"uuid">>,
+  {git,"git://github.com/avtobiff/erlang-uuid",
+       {ref,"cb02a2039a9b29dd2eef0446039c9c6e164df9ef"}},
+  0}].
