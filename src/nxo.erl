@@ -23,7 +23,17 @@
         , uuid/0
         , is_uuid/1
         , is_real_list/1
+        , session_timeout/0
+        , session_warning/0
+        , global_auth_allowed/0
+        , global_auth_enabled/0
+        , event_handler/0
+        , notify/1
+        , user/0
+        , is_authenticated/0
         ]).
+
+-define(EVENT, nxo_event_handler).
 
 -spec template(file:name_all()) -> file:filename_all().
 template(File) ->
@@ -92,7 +102,7 @@ depickle(PickledTerm) ->
 %% leading slash and de-duplicate extra slashes as well.
 -spec url_path([term()]) -> string().
 url_path(Parts) ->
-  String = string:join(["/" | [ wf:to_list(P) || P <- Parts ]], "/"),
+  String = string:join(["/" | [ to_list(P) || P <- Parts ]], "/"),
   re:replace(String, "//+", "/", [global, {return,list}]).
 
 %% @doc Return the first value that is not 'undefined', 'null', <<>>,
@@ -127,6 +137,73 @@ is_real_list(V) when is_list(V) ->
   not is_string(V);
 is_real_list(_) ->
   false.
+
+
+%% @doc Return the session timeout in MS.
+-spec session_timeout() -> integer().
+session_timeout() ->
+  to_integer(application:get_env(nxo, session_timeout, 20)) * 60 * 1000.
+
+%% @doc Return when the session timeout warning should fire, in MS.
+-spec session_warning() -> integer().
+session_warning() ->
+  session_timeout() - (60 * 1000).
+
+%% @doc Returns true if global_auth_required is true; false otherwise.
+%%
+%% When global_auth_required is true, all users must authenticate.
+%% This is a tool for development or pre-release.
+-spec global_auth_enabled() -> true | false.
+global_auth_enabled() ->
+  application:get_env(application(), global_auth_required, false).
+
+
+%% @doc Returns true if access to the resource is not hindered by
+%% global_auth.  This is primarily for use with events (see nxo_db).
+-spec global_auth_allowed() -> true | false.
+global_auth_allowed() ->
+  case wf:in_request() of
+    true ->
+      %% check for websocket request
+      WS = case wf_context:type() of
+             postback_websocket -> true;
+             postback_request   -> true;
+             _                  -> false
+           end,
+      case {global_auth_enabled(), wf:user(), wf:page_module(), WS} of
+        {_,     _, login, false} -> true;                  % access to login
+        {false, _, _    , _    } -> true;                  % no global
+        {_,     U, _    , _    } when U =/= undefined -> true; % user logged in
+        {_,     _, _    , _    } -> false
+      end;
+    false ->
+      true
+  end.
+
+
+%% @doc Returns the PID of the NXO event handler.
+-spec event_handler() -> pid().
+event_handler() ->
+  nprocreg:get_pid(?EVENT).
+
+%% @doc Send an event notification to the NXO event handler.
+-spec notify(Msg :: any()) -> ok.
+notify(Msg) ->
+  gen_event:notify(event_handler(), Msg).
+
+%% @doc Safely execute wf:user(); return username or 'undefined'.
+-spec user() -> any() | undefined.
+user() ->
+  case wf:in_request() of
+    true -> wf:user();
+    false -> undefined
+  end.
+
+%% @doc Test if user is authenticated.
+-spec is_authenticated() -> boolean().
+is_authenticated() ->
+  not(user() == undefined).
+
 
 %%%%%%%%%%%%%%%%%
 %% CONVERSIONS %%
