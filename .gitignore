@@ -1,5 +1,6 @@
 .rebar3
 _*
+!etc/bootstrap/scss/_*
 .eunit
 *.o
 *.beam
@@ -19,3 +20,4 @@ rebar3.crashdump
 *~
 .\#*
 \#*
+.sass-cache

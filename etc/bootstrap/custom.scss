@@ -1,0 +1,30 @@
+@import "scss/functions";
+@import "scss/variables";
+
+/* override default nitrogen CSS for inplace edits */
+div.view > span.instructions{ display: none !important; }
+.inplace_ok{ margin-left: 1em; }
+.inplace_cancel{ margin-left: 2px; }
+
+/* override default nitrogen CSS for validation errors */
+.LV_invalid{ background-color: #fff !important;
+             border: 0px !important;}
+
+.LV_validation_message{
+    float: right !important;
+    padding: 0px !important;
+    color: theme-color("danger") !important;
+    vertical-align: baseline !important;
+    line-height: normal !important;}
+
+.vert_form_label{ display: inline !important;
+                  padding-bottom: .3em; }
+
+/* flash messages */
+.flash{ background: #FFF !important;
+        border: white !important;}
+
+
+
+@import "scss/bootstrap";
+

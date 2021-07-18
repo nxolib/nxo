@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+case $1 in
+
+    build)
+        cd etc/bootstrap
+        docker build -t nxo-bs .
+        ;;
+    compile)
+        docker run --rm -v$(pwd):/css nxo-bs
+        ;;
+    *)
+        echo "Usage: $0 <build|compile>"
+        ;;
+
+esac
