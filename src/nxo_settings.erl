@@ -3,6 +3,7 @@
 -export([
           set/3
         , set/4
+        , get/1
         , get/2
         , set_group_description/2
         , list_groups/0
@@ -19,8 +20,9 @@
 -define(SETTINGS_DDL, "nxo_settings.sql").
 -define(DEFAULTS, "settings.yml").
 
--spec init() -> ok.
+-compile({no_auto_import, [get/1]}).
 
+-spec init() -> ok.
 init() ->
   create_tables(),
   load_defaults().
@@ -35,12 +37,22 @@ set(Group, Setting, Value, Description) ->
               value => Value, desc => Description },
   nxo_db:q(nxo_insert_setting, Params).
 
+get(Setting) when is_atom(Setting) ->
+  get(atom_to_list(Setting));
+get(Setting) when is_binary(Setting) ->
+  get(binary_to_list(Setting));
+get(Setting) when is_list(Setting) ->
+  [Group, SettingName] = string:split(Setting, "@"),
+  get(Group, SettingName).
+
 -spec get(group(), setting()) -> binary() | undefined.
 get(Group, Setting) ->
   Params = #{ group => Group, setting => Setting },
   case nxo_db:q(nxo_select_setting_value, Params, scalar) of
-    [] -> application:get_env(Group, Setting, undefined);
-    Value -> Value
+    [] ->
+      application:get_env(Group, Setting, undefined);
+    Value ->
+      Value
   end.
 
 -spec set_group_description(group(), description()) -> ok.
