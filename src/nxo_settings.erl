@@ -6,7 +6,6 @@
         , get/2
         , set_group_description/2
         , list_groups/0
-        , dump/0
         , init/0
         ]).
 
@@ -51,11 +50,7 @@ set_group_description(Group, Description) ->
 
 -spec list_groups() -> group_list().
 list_groups() ->
-  ok.
-
--spec dump() -> any().
-dump() ->
-  ok.
+  nxo_db:q(nxo_select_setting_groups).
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 %% INTERNAL FUNCTIONS %%

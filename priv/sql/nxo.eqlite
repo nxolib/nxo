@@ -23,3 +23,14 @@ FROM
 WHERE
   setting_group = :group
   AND setting = :setting;
+
+-- :nxo_select_setting_groups
+SELECT
+  setting_group,
+  setting_group_label,
+  ARRAY(SELECT ARRAY[setting, setting_value]
+        FROM nxo_settings
+        WHERE setting_group = nxo_setting_groups.setting_group) AS settings
+FROM
+  nxo_setting_groups
+ORDER BY setting_group;
