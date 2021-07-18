@@ -16,7 +16,7 @@ case $1 in
         ;;
     db)
         DB="/usr/bin/psql -Udb_user nxo_db"
-        DBID=$(docker ps --filter name=ndo_db --format "{{.ID}}")
+        DBID=$(docker ps --filter name=nxo_db.1 --format "{{.ID}}")
         docker exec -it $DBID $DB
         ;;
     css)

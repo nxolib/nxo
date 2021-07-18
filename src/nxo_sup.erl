@@ -14,6 +14,7 @@ start_link() ->
 
 init([]) ->
   sync:go(),
+  nxo_db:start(),
   SupFlags = #{strategy => one_for_one,
                intensity => 1,
                period => 5},

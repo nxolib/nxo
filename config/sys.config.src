@@ -6,6 +6,27 @@
       {application, ${NXO_APPLICATION}}
     , {development_mode, ${DEVELOPMENT_MODE}}
     , {global_auth_required, false}
-   ]}
+   ]},
+
+   {nxo_db,
+    [{pools, [#{name => db,
+                host => "db",
+                user => "db_user",
+                pass => "db_pass",
+                database => "nxo_db"}]},
+      {retries, 3},
+      {retry_sleep, 200},
+      {default_return, auto},
+      {ddl_source, [{priv_dir, nxo, "ddl"}]},
+      {sql_source, [{priv_dir, nxo, "sql"}]}
+    ]},
+
+  {kernel,
+    [{logger,
+      [{handler, default, logger_std_h,
+       #{formatter => {logger_formatter,
+                        #{template => ["[", level, "]\n", msg, "\n"],
+                          single_line => false}}}}]},
+      {logger_level, debug} ]}
 
 ].

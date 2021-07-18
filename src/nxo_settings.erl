@@ -1,4 +1,5 @@
 -module(nxo_settings).
+-include_lib("nitrogen_core/include/wf.hrl").
 -export([
           set/3
         , set/4
@@ -6,6 +7,7 @@
         , set_group_description/2
         , list_groups/0
         , dump/0
+        , init/0
         ]).
 
 -type group() :: string() | binary() | atom().
@@ -15,7 +17,11 @@
 -type group_description() :: map().
 -type group_list() :: [ group_description() ].
 
+-define(SETTINGS_DDL, "nxo_settings.sql").
+-define(DEFAULTS, "settings.yml").
+
 -spec init() -> ok.
+
 init() ->
   create_tables(),
   load_defaults().
@@ -26,17 +32,22 @@ set(Group, Setting, Value) ->
 
 -spec set(group(), setting(), value(), description()) -> value().
 set(Group, Setting, Value, Description) ->
-  ok.
+  Params = #{ group => Group, setting => Setting,
+              value => Value, desc => Description },
+  nxo_db:q(nxo_insert_setting, Params).
 
--spec get(group(), setting()) -> {group(), value(), description()} | undefined.
+-spec get(group(), setting()) -> binary() | undefined.
 get(Group, Setting) ->
-  %% check runtime store
-  %% check environment
-  ok.
+  Params = #{ group => Group, setting => Setting },
+  case nxo_db:q(nxo_select_setting_value, Params, scalar) of
+    [] -> application:get_env(Group, Setting, undefined);
+    Value -> Value
+  end.
 
 -spec set_group_description(group(), description()) -> ok.
 set_group_description(Group, Description) ->
-  ok.
+  Params = #{ group => Group, label => Description },
+  nxo_db:q(nxo_insert_setting_group, Params).
 
 -spec list_groups() -> group_list().
 list_groups() ->
@@ -51,7 +62,38 @@ dump() ->
 %%%%%%%%%%%%%%%%%%%%%%%%
 
 create_tables() ->
-  ok.
+  DDLs = lists:filter(
+           fun(File) -> lists:suffix(?SETTINGS_DDL, File) end,
+           nxo_db:sql_sources(ddl)),
+  lists:foreach(fun nxo_db_util:evaluate_file/1, DDLs).
 
 load_defaults() ->
-  ok.
+  Filename = application:get_env(nxo:application(), defaults_file, ?DEFAULTS),
+  DefaultsFile = filename:join(code:priv_dir(nxo:application()), Filename),
+  case filelib:is_file(DefaultsFile) of
+    true ->
+      logger:info("NXO: loading defaults file ~s", [DefaultsFile]),
+      load_defaults(DefaultsFile);
+    false ->
+      logger:info("NXO: no defaults file configured")
+  end.
+
+load_defaults(DefaultsFile) ->
+  P = hd(yamerl:decode_file(DefaultsFile)),
+  Groups = proplists:get_value("groups", P, []),
+  insert_groups(Groups),
+  Settings = proplists:get_value("settings", P, []),
+  insert_settings(Settings).
+
+insert_groups(Groups) ->
+  lists:foreach(fun({Group, Label}) ->
+                    set_group_description(Group, Label)
+                end, Groups).
+
+insert_settings(Settings) ->
+  lists:foreach(
+    fun({Setting, PList}) ->
+        [Group, Desc, Value] = [ proplists:get_value(K, PList, "")
+                                 || K <- ["group", "desc", "value"] ],
+        set(Group, Setting, Value, Desc)
+    end, Settings).
