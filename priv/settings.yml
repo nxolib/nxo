@@ -1,0 +1,16 @@
+groups:
+  nxo: NXO Settings
+
+settings:
+  - development_mode:
+      group: nxo
+      desc: Development Mode
+      value: true
+  - require_login:
+      group: nxo
+      desc: Require Login
+      value: false
+  - session_timeout:
+      group: nxo
+      desc: Session Timeout
+      value: 45

@@ -1,0 +1,11 @@
+%% -*- mode: erlang -*-
+
+[
+  {nxo,
+    [
+      {application, ${NXO_APPLICATION}}
+    , {development_mode, ${DEVELOPMENT_MODE}}
+    , {global_auth_required, false}
+   ]}
+
+].

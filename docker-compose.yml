@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+
+  db:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=db_user
+      - POSTGRES_PASSWORD=db_pass
+      - POSTGRES_DB=nxo_db
+
+  fe:
+    image: erlang:23
+    volumes:
+      - ".:/nxo"
+    entrypoint:
+      - /bin/bash
+    tty: true
+    stdin_open: true
+    working_dir: /nxo
