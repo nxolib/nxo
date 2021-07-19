@@ -14,6 +14,8 @@ services:
       - ".:/nxo"
     entrypoint:
       - /bin/bash
+    ports:
+      - "12222:3003"
     tty: true
     stdin_open: true
     working_dir: /nxo

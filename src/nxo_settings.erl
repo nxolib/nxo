@@ -43,7 +43,7 @@ get(Setting) when is_binary(Setting) ->
   get(binary_to_list(Setting));
 get(Setting) when is_list(Setting) ->
   [Group, SettingName] = string:split(Setting, "@"),
-  get(Group, SettingName).
+  get(list_to_atom(Group), list_to_atom(SettingName)).
 
 -spec get(group(), setting()) -> binary() | undefined.
 get(Group, Setting) ->

@@ -6,6 +6,21 @@
       {application, ${NXO_APPLICATION}}
     , {development_mode, ${DEVELOPMENT_MODE}}
     , {global_auth_required, false}
+
+    %% The fallback page module prefix.  Page modules in the
+    %% NXO application will have this prefix and be called if
+    %% a corresponding page (prefixed with "page") in the app
+    %% does not exist.
+    , {nxo_module_prefix, nxopage}
+
+    %% Assets packaged with the NXO application,
+    %% This is a subdir of priv.
+    , {nxo_static_assets, "nxostatic"}
+
+    %% Assets packaged with the actual application.
+    %% This is also a subdir of priv.  This exists here
+    %% only for testing.
+    , {static_assets, "static"}
    ]},
 
    {nxo_db,
@@ -25,8 +40,25 @@
     [{logger,
       [{handler, default, logger_std_h,
        #{formatter => {logger_formatter,
-                        #{template => ["[", level, "]\n", msg, "\n"],
+                        #{template => ["[", level, "] ", msg, "\n"],
                           single_line => false}}}}]},
-      {logger_level, debug} ]}
+      {logger_level, debug} ]},
+
+  {nitrogen_core, [{module_prefix, "page"}]},
+
+  {sync, [{growl, none}]},
+
+  {simple_bridge,
+    [{handler, nitrogen},
+     {backend, cowboy},
+     {address, "0.0.0.0"},
+     {port, 3003},
+     {document_root, see_nxo_sup},
+     {static_paths, []},
+     {max_post_size, 10},
+     {max_file_size, 10},
+     {max_file_in_memory_size, 0},
+     {scratch_dir, "/tmp/scratch"}
+    ]}
 
 ].
