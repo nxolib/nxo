@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>[[[page:title()]]]</title>
+    [[[ nxo_view:header() ]]]
+  </head>
+
+  <body>
+    [[[ nxo_view:menu() ]]]
+    <div class="container mb-5">
+        <div>
+            <a href="/organization">Return to Organization List</a>
+        </div>
+
+        <p class="h2 my-4">[[[page:title()]]]</p>
+        <form class="col-sm-6">
+
+            <div class="form-group">
+                <label for="org_name">Organization Name</label>
+                <input type="text"
+                       value="[[[nxo_forms:form_value(org_name)]]]"
+                       class="form-control wfid_org_name"
+                       id="org_name" />
+                <div class="invalid-feedback" >
+                    Required field; must be unique.
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="org_abbrv">Short Name</label>
+                <input type="text"
+                       value="[[[nxo_forms:form_value(org_abbrv)]]]"
+                       class="form-control wfid_org_abbrv"
+                       id="org_abbrv" />
+                <div class="invalid-feedback">
+                    Required field; must be unique.
+                </div>
+                <small id="org_abbrv_help" class="form-text text-muted">
+                    A one word label used to tag display elements.
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label for="address_1">Address Line One</label>
+                <input type="text"
+                       value="[[[nxo_forms:form_value(address_1)]]]"
+                       class="form-control wfid_address_1"
+                       id="address_1" />
+            </div>
+
+            <div class="form-group">
+                <label for="address_2">Address Line Two</label>
+                <input type="text"
+                       value="[[[nxo_forms:form_value(address_2)]]]"
+                       class="form-control wfid_address_2"
+                       id="address_2" />
+            </div>
+
+            <div class="form-group">
+                <label for="address_3">Address Line Three</label>
+                <input type="text"
+                       value="[[[nxo_forms:form_value(address_3)]]]"
+                       class="form-control wfid_address_3"
+                       id="address_3" />
+            </div>
+
+            <div class="form-group">
+                <label for="city">City</label>
+                <input type="text"
+                       value="[[[nxo_forms:form_value(city)]]]"
+                       class="form-control wfid_city"
+                       id="city" />
+            </div>
+
+            <div class="form-group">
+                <label for="state">State</label>
+                <input type="text"
+                       value="[[[nxo_forms:form_value(state)]]]"
+                       class="form-control wfid_state"
+                       id="state" />
+            </div>
+
+            <div class="form-group">
+                <label for="country">Country</label>
+                <input type="text"
+                       value="[[[nxo_forms:form_value(country)]]]"
+                       class="form-control wfid_country"
+                       id="country" />
+            </div>
+
+            <div class="form-group">
+                <label for="postcode">ZIP/Post Code</label>
+                <input type="text"
+                       value="[[[nxo_forms:form_value(postcode)]]]"
+                       class="form-control wfid_postcode"
+                       id="postcode" />
+            </div>
+
+            [[[page:submit_button()]]]
+        </form>
+    </div>
+
+
+    [[[ nxo_view:footer() ]]]
+  </body>
+</html>

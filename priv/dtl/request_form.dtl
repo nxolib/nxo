@@ -1,0 +1,120 @@
+<div>
+    <div class="form-group">
+        <label for="email">Email</label>
+        <input type="text"
+               class="form-control wfid_email"
+               id="email" />
+        <div class="invalid-feedback" >
+            Required field; must be unique.
+        </div>
+        <small class="form-text text-muted">
+            Required.
+        </small>
+    </div>
+
+    <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password"
+               class="form-control wfid_password"
+               id="password" />
+        <div class="invalid-feedback">
+            Required field.
+        </div>
+        <small class="form-text text-muted">
+            Required; minimum of 12 characters.
+        </small>
+    </div>
+
+    <div class="form-group">
+        <label for="password_confirm">Password Confirmation</label>
+        <input type="password"
+               class="form-control wfid_password_confirm"
+               id="password_confirm" />
+        <div class="invalid-feedback">
+            Password confirmation must match password.
+        </div>
+        <small class="form-text text-muted">
+            Required.
+        </small>
+    </div>
+    
+    <div class="form-group">
+        <label for="first_name">First Name</label>
+        <input type="text"
+               class="form-control wfid_first_name"
+               id="first_name" />
+        <div class="invalid-feedback">
+            Required field.
+        </div>
+        <small class="form-text text-muted">
+            Required.
+        </small>
+    </div>
+
+    <div class="form-group">
+        <label for="last_name">Last Name</label>
+        <input type="text"
+               class="form-control wfid_last_name"
+               id="last_name" />
+        <div class="invalid-feedback">
+            Required field.
+        </div>
+        <small class="form-text text-muted">
+            Required.
+        </small>
+    </div>
+
+    <div class="form-group">
+        <label for="phone">Phone Number</label>
+        <input tpe="text"
+               class="form-control wfid_phone"
+               id="phone" />
+        <div class="invalid-feedback">
+            Phone number must contain at least 10 digits.
+        </div>
+        <small class="form-text text-muted">
+            Optional; if present must contain at least 10 digits.
+        </small>
+    </div>
+
+    <div class="form-group">
+        <label for="org_id">Organization</label>
+        <select class="custom-select wfid_org_id">
+            <option value="">&mdash; Select Organization &mdash;</option>
+            <option value="">My organization is not listed.</option>
+            <option value=""><hr /></option>
+            {% for o in orgs %}
+                {% if o.org_abbrv != "global" %}
+                    <option value="{{ o.org_id }}">
+                        {{ o.org_name }}
+                    </option>
+                {% endif %}
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="title">Title</label>
+        <input type="text"
+               class="form-control wfid_title"
+               id="title" />
+        <small class="form-text text-muted">
+            Optional. Your title in this organization e.g., <i>Principal Investigator</i>.
+        </small>
+    </div>
+
+    <div class="form-group">
+        <label for="is_contact">Listed Organizational Contact</label>
+        <select class="custom-select wfid_is_contact"
+                id="is_contact">
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+        </select>
+        <small class="form-text text-muted">
+            If <i>yes</i> you will be listed as a contact for your organization.
+        </small>
+    </div>
+    
+    [[[page:button()]]]
+    
+</div>

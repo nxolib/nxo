@@ -1,0 +1,19 @@
+-- :ddl-read
+SELECT * FROM sys_ddl_files
+
+-- :ddl-write
+INSERT INTO sys_ddl_files (filename) VALUES ($1)
+ON CONFLICT (filename)
+DO UPDATE SET applied_dt = current_timestamp
+           WHERE sys_ddl_files.filename = $1
+
+-- :version-write
+INSERT INTO sys_version (version, notes) VALUES ($1, $2)
+
+-- :ddl-check
+SELECT COUNT(*)
+FROM sys_ddl_files
+WHERE filename = $1
+
+-- :ping
+SELECT 1

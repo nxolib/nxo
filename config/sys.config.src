@@ -14,13 +14,16 @@
     , {nxo_module_prefix, nxopage}
 
     %% Assets packaged with the NXO application,
-    %% This is a subdir of priv.
-    , {nxo_static_assets, "nxostatic"}
+    %% This is a subdir of the nxo priv.
+    , {nxo_static_assets, "static"}
 
     %% Assets packaged with the actual application.
     %% This is also a subdir of priv.  This exists here
     %% only for testing.
-    , {static_assets, "static"}
+    , {static_assets, "appstatic"}
+
+    %% Path to the Nitrogen template directory
+    , {html_template_dir, [{priv_dir, nxo, "templates"}]}
    ]},
 
    {nxo_db,
@@ -35,6 +38,10 @@
       {ddl_source, [{priv_dir, nxo, "ddl"}]},
       {sql_source, [{priv_dir, nxo, "sql"}]}
     ]},
+
+  %% NB: These are DTL templates (not Nitrogen templates).
+  {nxo_template,
+    [{path, [{priv_dir, nxo, "dtl"}]}]},
 
   {kernel,
     [{logger,

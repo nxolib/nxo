@@ -13,8 +13,8 @@ start_link() ->
   supervisor:start_link({local, ?SERVER}, ?MODULE, []).
 
 init([]) ->
-  sync:go(),
   nxo_db:start(),
+  nxo_db:apply_full_ddl(),
 
   %% We're only allowed one document_root yet we might need to serve
   %% up files from priv_dir(nxo)/nxostatic or priv_dir(app)/static.
@@ -30,6 +30,13 @@ init([]) ->
                 , nprocreg
                 , simple_bridge
                 ]),
+
+  case nxo:is_development() of
+    true ->
+      sync:go();
+    false ->
+      ok
+  end,
 
   SupFlags = #{strategy => one_for_one,
                intensity => 1,

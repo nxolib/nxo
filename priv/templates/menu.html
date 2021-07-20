@@ -1,0 +1,49 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <a class="navbar-brand" href="/">
+    <img src="/images/menu-logo.png" alt="NXO" />
+  </a>
+  <button class="navbar-toggler"
+      type="button"
+      data-toggle="collapse"
+      data-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent"
+      aria-expanded="false"
+      aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="row">
+
+    <div class="text-light col-sm-12 h4">
+     Bare NXO Application
+    </div>
+
+    <div class="collapse navbar-collapse col-sm-12"
+        id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+
+        <li class="nav-item">
+          <a class="nav-link" href="/">Menu Item One</a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="/">Menu Item Two</a>
+        </li>
+
+      </ul>
+
+
+      <ul class="navbar-nav ml-auto">
+        [[[ nxo_view:admin_menu_list() ]]]
+        <form class="form-inline my-2 my-lg-0">
+          [[[ nxo_view:login() ]]]
+        </form>
+      </ul>
+
+
+    </div>
+  </div>
+
+</nav>
+<div style="padding-bottom: 10px"></div>
+[[[ nxo_modal:modal(modal) ]]]

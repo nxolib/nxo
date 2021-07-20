@@ -1,0 +1,36 @@
+-- :nxo_insert_setting_group
+INSERT INTO nxo_setting_groups (setting_group, setting_group_label)
+VALUES (:group, :label)
+ON CONFLICT (setting_group) DO UPDATE
+  SET setting_group_label = :label
+  WHERE nxo_setting_groups.setting_group = :group;
+
+-- :nxo_insert_setting
+INSERT INTO nxo_settings
+  (setting_group, setting, setting_desc, setting_value)
+VALUES (:group, :setting, :desc, :value)
+ON CONFLICT (setting_group, setting) DO UPDATE
+  SET setting_desc = :desc,
+      setting_value = :value
+  WHERE nxo_settings.setting_group = :group
+    AND nxo_settings.setting = :setting;
+
+-- :nxo_select_setting_value
+SELECT
+  setting_value
+FROM
+  nxo_settings
+WHERE
+  setting_group = :group
+  AND setting = :setting;
+
+-- :nxo_select_setting_groups
+SELECT
+  setting_group,
+  setting_group_label,
+  ARRAY(SELECT ARRAY[setting, setting_value]
+        FROM nxo_settings
+        WHERE setting_group = nxo_setting_groups.setting_group) AS settings
+FROM
+  nxo_setting_groups
+ORDER BY setting_group;

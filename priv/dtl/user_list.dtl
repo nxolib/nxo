@@ -1,0 +1,38 @@
+<table class="table mb-5">
+    <tr>
+        <td>
+            [[[ page:button(help,  question,      secondary) ]]]
+            [[[ page:button(add,   plus,          success)   ]]]
+            [[[ page:button(addad, "search-plus", success)   ]]]
+        </td>
+        <th>Email</th>
+        <th>Name</th>
+        <th>Account Name</th>
+        <th>Organization</th>
+    </tr>
+
+    {% for u in users %}
+        <tr
+            {% if u.is_pending %}
+            class="table-warning"
+            {% endif %}  >
+            <td>
+                [[[ page:button({info,   "{{ u.user_id }}"}, "info-circle", primary) ]]]
+                [[[ page:button({edit,   "{{ u.user_id }}"}, edit,          primary) ]]]
+
+                {% if u.active %}
+                [[[ page:button({inactivate, "{{ u.user_id }}"}, "toggle-on", success) ]]]
+                {% else %}
+                [[[ page:button({activate, "{{ u.user_id }}"}, "toggle-off", light) ]]]
+                {% endif %}
+                
+                [[[ page:button({mask,   "{{ u.user_id }}"},  "user-secret", warning) ]]]
+                [[[ page:button({delete, "{{ u.user_id }}"},  ban,           danger)  ]]]
+            </td>
+            <td>{{ u.email }}</td>
+            <td>{{ u.last_name }}, {{ u.first_name }}</td>
+            <td>{{ u.samaccountname }}</td>
+            <td>{{ u.org_name }}</td>
+        </tr>
+    {% endfor %}
+</table>

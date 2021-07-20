@@ -1,0 +1,23 @@
+<table class="table mb-5">
+    <tr>
+        <td>[[[page:button(add)]]]</td>
+        <th>Group Label</th>
+        <th>Name</th>
+        <th>Global</th>
+        <th>Description</th>
+    </tr>
+
+    {% for g in groups %}
+        <tr>
+            <td>
+                [[[page:button(edit, "{{ g.group_id }}")]]]
+                [[[page:button(delete, "{{ g.group_id }}")]]]
+            </td>
+            <td>{{ g.group_label }}</td>
+            <td>{{ g.group_name }}</td>
+            <td>{% if g.global_only %}Yes{% endif %}</td>
+            <td>{{ g.description }}</td>
+        </tr>
+    {% endfor %}
+
+</table>
