@@ -33,9 +33,6 @@ report_validation_failure() ->
   wf:wire(#script{ script="window.scrollTo(0,0)" }),
   wf:wire(#alert{ text="There are invalid fields." }).
 
-
-%% XXX: This could use a refactor.
-
 %% @doc Provide the standard header.
 header() -> #template{ file=nxo:template("header.html") }.
 
@@ -43,11 +40,9 @@ header() -> #template{ file=nxo:template("header.html") }.
 footer() ->
   #template{ file=nxo:template("footer.html") }.
 
-
 %% @doc Provide the menu.
 menu() ->
   #template{ file=nxo:template("menu.html") }.
-
 
 %% @doc Change the background color of the footer bar in the dev env.
 development_watermark() ->
@@ -94,7 +89,6 @@ database_development() ->
 %%   -- otherwise, show the login form.
 login() ->
   case wf:path() =:= "/login"
-    orelse wf:path() =:= "/duoweb_login"
     orelse wf:page_module() =:= page_login
     orelse wf:page_module() =:= page_request_access
   of
@@ -114,12 +108,12 @@ login(undefined) ->
                                       placeholder="Password",
                                       class="form-control-sm mr-sm-2",
                                       postback=login,
-                                      delegate=page_login
+                                      delegate=nxo_login_delegate
                                     },
                            #button{ text="Sign In",
                                     class="btn btn-sm btn-light",
                                     postback=login,
-                                    delegate=page_login } ]} ]};
+                                    delegate=nxo_login_delegate } ]} ]};
 login(_User) ->
   #listitem{
      class="nav-item dropdown",

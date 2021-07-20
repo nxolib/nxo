@@ -24,6 +24,9 @@
 
     %% Path to the Nitrogen template directory
     , {html_template_dir, [{priv_dir, nxo, "templates"}]}
+
+    %% Font Awesome Library
+    , {fa_url, ""}
    ]},
 
    {nxo_db,

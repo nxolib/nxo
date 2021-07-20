@@ -1,11 +1,7 @@
 -module(nxo_sup).
 -behaviour(supervisor).
-
-%% API
--export([start_link/0]).
-
-%% Supervisor callbacks
--export([init/1]).
+-include("nxo.hrl").
+-export([init/1, ping_db/0, start_link/0]).
 
 -define(SERVER, ?MODULE).
 
@@ -15,6 +11,7 @@ start_link() ->
 init([]) ->
   nxo_db:start(),
   nxo_db:apply_full_ddl(),
+  nxo_template:compile_all(),
 
   %% We're only allowed one document_root yet we might need to serve
   %% up files from priv_dir(nxo)/nxostatic or priv_dir(app)/static.
@@ -29,14 +26,24 @@ init([]) ->
                 , nitro_cache
                 , nprocreg
                 , simple_bridge
+                , bcrypt
+                , erlpass
                 ]),
 
   case nxo:is_development() of
-    true ->
-      sync:go();
-    false ->
-      ok
+    true -> sync:go();
+    false -> ok
   end,
+
+  %% a db keep-alive process
+  spawn(?MODULE, ping_db, []),
+
+  %% initialize the caches
+  nxo_template_name_cache:init(),
+
+  %% manage event handlers
+  start_event_handler(),
+
 
   SupFlags = #{strategy => one_for_one,
                intensity => 1,
@@ -44,6 +51,15 @@ init([]) ->
 
   {ok, {SupFlags, []}}.
 
-%%%===================================================================
-%%% Internal functions
-%%%===================================================================
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+%% INTERNAL FUNCTIONS %%
+%%%%%%%%%%%%%%%%%%%%%%%%
+start_event_handler() ->
+  {ok, Pid} = gen_event:start_link(),
+  nprocreg:register_pid(?EVENT, Pid).
+
+ping_db() ->
+  timer:sleep(10 * 60 * 1000),
+  nxo_db:q(ping, []),
+  ping_db().
