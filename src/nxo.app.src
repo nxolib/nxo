@@ -16,7 +16,6 @@
                           , qdate
                           , uuid
                           , rekt
-                          , nxo
                           , nxo_db
                           , nxo_template
                           ]},
