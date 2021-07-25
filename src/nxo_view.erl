@@ -180,33 +180,27 @@ admin_menu() ->
                          body=[
                                admin_menu(app_settings),
                                admin_menu(user_management),
-                               admin_menu(org_management),
                                admin_menu(group_management)]}]}.
 
 admin_menu(app_settings) ->
   case nxo_authz:may(admin_everything) of
     false -> [];
-    true -> [menu_item("/settings", "Registry Settings"),
-             menu_item("/mailcheck", "Test Email Connectivity"),
-             rule()]
+    true -> [menu_item("/settings", "Application Settings"),
+             menu_item("/mailcheck", "Test Email Connectivity")]
   end;
 admin_menu(user_management) ->
   case nxo_authz:may(admin_users) of
     false -> [];
     true  -> [menu_item("/users", "User Management"),
-              rule()]
+              menu_item("/organization", "Organization Management")]
   end;
-admin_menu(org_management) ->
-  case nxo_authz:may(admin_users) of
-    false -> [];
-    true  -> [menu_item("/organization", "Organization Management"),
-              rule()]
-  end;
+
 admin_menu(group_management) ->
   case nxo_authz:may(admin_everything) of
     false -> [];
-    true  -> [menu_item("/groups", "Group Management"), rule()]
+    true  -> [menu_item("/groups", "Group Management")]
   end;
+
 admin_menu(data_management) ->
   case nxo_authz:may(admin_data) of
     false -> [];
