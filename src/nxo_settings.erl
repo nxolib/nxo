@@ -7,6 +7,7 @@
         , get/2
         , set_group_description/2
         , list_groups/0
+        , group_settings/1
         , init/0
         ]).
 
@@ -16,6 +17,8 @@
 -type description() :: string() | binary().
 -type group_description() :: map().
 -type group_list() :: [ group_description() ].
+-type setting_description() :: map().
+-type setting_list() :: [ setting_description() ].
 
 -define(DEFAULTS, "settings.yml").
 
@@ -33,6 +36,7 @@ set(Group, Setting, Value) ->
 set(Group, Setting, Value, Description) ->
   Params = #{ group => Group, setting => Setting,
               value => Value, desc => Description },
+  ?PRINT(Params),
   nxo_db:q(nxo_insert_setting, Params).
 
 get(Setting) when is_atom(Setting) ->
@@ -61,6 +65,10 @@ set_group_description(Group, Description) ->
 -spec list_groups() -> group_list().
 list_groups() ->
   nxo_db:q(nxo_select_setting_groups).
+
+-spec group_settings(group()) -> setting_list().
+group_settings(Group) ->
+  nxo_db:q(nxo_group_settings, #{ group => Group }, map).
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 %% INTERNAL FUNCTIONS %%

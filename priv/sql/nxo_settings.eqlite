@@ -10,7 +10,11 @@ INSERT INTO nxo_settings
   (setting_group, setting, setting_desc, setting_value)
 VALUES (:group, :setting, :desc, :value)
 ON CONFLICT (setting_group, setting) DO UPDATE
-  SET setting_desc = :desc,
+  SET setting_desc =
+        CASE
+          WHEN :desc = '' OR :desc IS NULL THEN nxo_settings.setting_desc
+          ELSE :desc
+        END,
       setting_value = :value
   WHERE nxo_settings.setting_group = :group
     AND nxo_settings.setting = :setting;
@@ -30,7 +34,19 @@ SELECT
   setting_group_label,
   ARRAY(SELECT ARRAY[setting, setting_value, setting_desc, setting_group]
         FROM nxo_settings
-        WHERE setting_group = nxo_setting_groups.setting_group) AS settings
+        WHERE setting_group = nxo_setting_groups.setting_group
+        ORDER BY setting_desc) AS settings
 FROM
   nxo_setting_groups
 ORDER BY setting_group;
+
+-- :nxo_group_settings
+SELECT
+  setting,
+  setting_value,
+  setting_desc
+FROM
+  nxo_settings
+WHERE
+  setting_group = :group
+ORDER BY setting_desc
