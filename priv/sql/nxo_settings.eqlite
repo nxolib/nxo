@@ -28,7 +28,7 @@ WHERE
 SELECT
   setting_group,
   setting_group_label,
-  ARRAY(SELECT ARRAY[setting, setting_value]
+  ARRAY(SELECT ARRAY[setting, setting_value, setting_desc, setting_group]
         FROM nxo_settings
         WHERE setting_group = nxo_setting_groups.setting_group) AS settings
 FROM

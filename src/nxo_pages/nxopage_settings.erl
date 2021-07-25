@@ -28,7 +28,7 @@ event(_) ->
 
 
 body() ->
-  maps:fold(fun display_group_card/3, [], nxo_settings:groups()).
+  maps:fold(fun display_group_card/3, [], nxo_settings:list_groups()).
 
 display_group_card(Group, Label, Acc) ->
   Card = #panel{

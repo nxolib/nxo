@@ -17,14 +17,12 @@
 -type group_description() :: map().
 -type group_list() :: [ group_description() ].
 
--define(SETTINGS_DDL, "nxo_settings.sql").
 -define(DEFAULTS, "settings.yml").
 
 -compile({no_auto_import, [get/1]}).
 
 -spec init() -> ok.
 init() ->
-  create_tables(),
   load_defaults().
 
 -spec set(group(), setting(), value()) -> value().
@@ -67,12 +65,6 @@ list_groups() ->
 %%%%%%%%%%%%%%%%%%%%%%%%
 %% INTERNAL FUNCTIONS %%
 %%%%%%%%%%%%%%%%%%%%%%%%
-
-create_tables() ->
-  DDLs = lists:filter(
-           fun(File) -> lists:suffix(?SETTINGS_DDL, File) end,
-           nxo_db:sql_sources(ddl)),
-  lists:foreach(fun nxo_db_util:evaluate_file/1, DDLs).
 
 load_defaults() ->
   Filename = application:get_env(nxo:application(), defaults_file, ?DEFAULTS),
