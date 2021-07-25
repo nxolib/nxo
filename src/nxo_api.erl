@@ -16,7 +16,7 @@ user_key(UserID) ->
 change_key(UserID) ->
   Key = uuid:to_string(uuid:uuid4()),
   nxo_db:query(set_api_key, [UserID, Key]),
-  nxo_db:query(api_audit, [UserID, "change api key", []]),
+  nxo:notify({api_key_change, UserID}),
   Key.
 
 login(APIKey) ->

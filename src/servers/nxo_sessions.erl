@@ -131,7 +131,7 @@ display_warning_modal(State) ->
 do_terminate(State) ->
   wf_context:context(maps:get(ctx, State)),
   wf_context:clear_action_queue(),
-  nxo_db:query(user_audit_insert, [wf:user(), true, "timeout", ""]),
+  nxo:devent({authentication_event, {wf:user(), timeout, success}}),
   wf:logout(),
   wf:session(auth_message, "Logged out due to inactivity."),
   wf:redirect("/login"),

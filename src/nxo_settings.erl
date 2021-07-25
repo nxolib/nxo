@@ -36,7 +36,6 @@ set(Group, Setting, Value) ->
 set(Group, Setting, Value, Description) ->
   Params = #{ group => Group, setting => Setting,
               value => Value, desc => Description },
-  ?PRINT(Params),
   nxo_db:q(nxo_insert_setting, Params).
 
 get(Setting) when is_atom(Setting) ->

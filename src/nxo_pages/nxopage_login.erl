@@ -1,12 +1,9 @@
 -module(nxopage_login).
 -include("nxo.hrl").
 -export([
-          %% event/1
           main/0
         , title/0
         , body/0
-        %% , set_user/1
-        %% , set_user/2
         ]).
 
 -security(none).
@@ -50,12 +47,14 @@ show_content() ->
                             body=[ #password{ id=password,
                                               placeholder="Password",
                                               class="form-control",
+                                              delegate=nxo_login_delegate,
                                               postback=login} ]},
                          #panel{
                             class="col-sm-2",
                             body=[ #button{ text="Sign In",
                                             id=login_button,
                                             class="btn btn-block btn-success",
+                                            delegate=nxo_login_delegate,
                                             postback=login} ]} ]} ]}.
 
 message_box(Message) ->

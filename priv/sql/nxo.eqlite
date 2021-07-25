@@ -162,33 +162,6 @@ WHERE user_id = $1
                   FROM nxo_groups
                   WHERE LOWER(group_name) = LOWER($2))
 
--- :settings_audit_insert
-INSERT INTO nxo_settings_audit
-  (setting_group, setting_name, user_id, old_value, new_value)
-VALUES ($1, $2, $3, $4, $5)
-
--- :settings_audit_lookup
-SELECT *
-FROM nxo_settings_audit
-JOIN nxo_users USING (user_id)
-WHERE email          LIKE CONCAT('%', $1::TEXT, '%')
-   OR last_name      LIKE CONCAT('%', $1::TEXT, '%')
-   OR samaccountname LIKE CONCAT('%', $1::TEXT, '%')
-   OR setting_name   LIKE CONCAT('%', $1::TEXT, '%')
-   OR setting_group  LIKE CONCAT('%', $1::TEXT, '%')
-ORDER BY action_dt DESC
-LIMIT $2
-OFFSET $3
-
--- :settings_audit_lookup_count
-SELECT COUNT(*)
-FROM nxo_settings_audit
-JOIN nxo_users USING (user_id)
-WHERE email          LIKE CONCAT('%', $1::TEXT, '%')
-   OR last_name      LIKE CONCAT('%', $1::TEXT, '%')
-   OR samaccountname LIKE CONCAT('%', $1::TEXT, '%')
-   OR setting_name   LIKE CONCAT('%', $1::TEXT, '%')
-   OR setting_group  LIKE CONCAT('%', $1::TEXT, '%')
 
 -- :settings_get_group
 SELECT setting_group, setting_name, setting_display,
@@ -252,28 +225,6 @@ LEFT OUTER JOIN nxo_user_orgs uo ON u.user_id = uo.user_id
 LEFT OUTER JOIN nxo_orgs o USING (org_id)
 ORDER BY is_pending DESC, u.last_name, u.first_name
 
--- :user_audit_insert
-INSERT INTO nxo_security_audit (user_id, success, activity, comment)
-VALUES ($1, $2, $3, $4)
-
--- :user_audit_lookup
-SELECT *
-FROM nxo_security_audit
-JOIN nxo_users USING (user_id)
-WHERE email          LIKE CONCAT('%', $1::TEXT, '%')
-   OR last_name      LIKE CONCAT('%', $1::TEXT, '%')
-   OR samaccountname LIKE CONCAT('%', $1::TEXT, '%')
-ORDER BY action_dt DESC
-LIMIT $2
-OFFSET $3
-
--- :user_audit_lookup_count
-SELECT COUNT(*)
-FROM nxo_security_audit
-JOIN nxo_users USING (user_id)
-WHERE email          LIKE CONCAT('%', $1::TEXT, '%')
-   OR last_name      LIKE CONCAT('%', $1::TEXT, '%')
-   OR samaccountname LIKE CONCAT('%', $1::TEXT, '%')
 
 -- :user_delete
 DELETE FROM nxo_users

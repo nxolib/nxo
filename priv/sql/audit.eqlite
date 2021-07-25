@@ -1,0 +1,5 @@
+-- :audit_insert
+INSERT INTO nxo_audit
+ (activity, user_id, target, result, comment)
+VALUES
+ (:activity, :user_id, :target, :result, :comment);

@@ -187,7 +187,6 @@ admin_menu(app_settings) ->
   case nxo_authz:may(admin_everything) of
     false -> [];
     true -> [menu_item("/settings", "Registry Settings"),
-             menu_item("/settings_audit", "Settings Audit Data"),
              menu_item("/mailcheck", "Test Email Connectivity"),
              rule()]
   end;
@@ -195,7 +194,6 @@ admin_menu(user_management) ->
   case nxo_authz:may(admin_users) of
     false -> [];
     true  -> [menu_item("/users", "User Management"),
-              menu_item("/login_audit", "Login Audit Data"),
               rule()]
   end;
 admin_menu(org_management) ->

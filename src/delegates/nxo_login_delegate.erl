@@ -28,7 +28,7 @@ event(unmask) ->
 
 event(logout) ->
   nxo_sessions:kill(wf:user()),
-  nxo_db:query(user_audit_insert, [wf:user(), true, "logout", ""]),
+  nxo:notify({authentication_event, {wf:user(), logout, success}}),
   wf:logout(),
   wf:redirect("/").
 
@@ -91,9 +91,9 @@ authenticate_user(UserData, Pass) ->
   end.
 
 successful_audit(#{ <<"user_id">> := UserID }=UserData) ->
-  nxo_db:query(user_audit_insert, [UserID, true, "login", ""]),
+  nxo:notify({authentication_event, {UserID, login, success}}),
   {true, UserData}.
 
 failed_audit(#{ <<"user_id">> := UserID }, Comment) ->
-  nxo_db:query(user_audit_insert, [UserID, false, "login", Comment]),
+  nxo:notify({authentication_event, {UserID, login, fail, Comment}}),
   false.

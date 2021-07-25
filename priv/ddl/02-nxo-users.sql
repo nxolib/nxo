@@ -20,19 +20,6 @@ CREATE TABLE IF NOT EXISTS nxo_users (
   );
 
 
--- Security audit table.
---
--- Used to record security related actions like login/out, password changes,
--- and the like.
-CREATE TABLE IF NOT EXISTS nxo_security_audit (
-  audit_id  UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id   UUID NOT NULL REFERENCES nxo_users(user_id) ON DELETE CASCADE,
-  action_dt TIMESTAMP NOT NULL DEFAULT now(),
-  success   BOOLEAN NOT NULL DEFAULT true,
-  activity  VARCHAR(256) NOT NULL default 'login',
-  comment   VARCHAR(256) NULL
-  );
-
 
 -- Basic groups table.
 --
