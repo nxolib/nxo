@@ -1,0 +1,22 @@
+-- :api_audit
+INSERT INTO nxo_api_audit (user_id, activity, comment)
+VALUES ($1, $2, $3)
+
+-- :api_log
+INSERT INTO nxo_api_audit(user_id, activity, comment)
+VALUES ($1, $2, $3)
+
+-- :get_api_key
+SELECT api_key
+FROM nxo_api_keys
+WHERE user_id = $1
+
+-- :is_api_key
+SELECT user_id
+FROM nxo_api_keys
+WHERE api_key = $1
+
+-- :set_api_key
+INSERT INTO nxo_api_keys(user_id, api_key)
+VALUES ($1, $2)
+ON CONFLICT (user_id) DO UPDATE SET api_key = $2;
