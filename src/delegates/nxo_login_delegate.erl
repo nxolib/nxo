@@ -12,7 +12,8 @@ event(login) ->
   [Username, Password] = wf:mq([username, password]),
   case login(Username, Password) of
     {true, UserData} ->
-      set_user(UserData);
+      set_user(UserData),
+      wf:redirect_from_login("/");
     false ->
       wf:redirect_to_login("/login")
   end;
