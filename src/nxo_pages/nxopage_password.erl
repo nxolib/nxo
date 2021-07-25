@@ -60,10 +60,12 @@ body() ->
 
 event(_) ->
   case nxo_auth_user:change_password(wf:user(), wf:q(new_password_1)) of
-    ok -> wf:update(result, #span{class="p-3 mb-2 bg-success text-white",
-                                  text="Password changed."});
-    _ -> wf:update(result, #span{class="p-3 mb-2 bg-danger text-white",
-                                 text="Failed to change password."})
+    ok ->
+      wf:update(result, #span{class="p-3 mb-2 bg-success text-white",
+                              text="Password changed."});
+    failed ->
+      wf:update(result, #span{class="p-3 mb-2 bg-danger text-white",
+                              text="Failed to change password."})
   end.
 
 

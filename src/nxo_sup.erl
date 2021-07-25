@@ -45,7 +45,6 @@ init([]) ->
   %% manage event handlers
   start_event_handler(),
 
-
   SupFlags = #{strategy => one_for_one,
                intensity => 1,
                period => 5},

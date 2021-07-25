@@ -28,6 +28,10 @@
         , global_auth_allowed/0
         , global_auth_enabled/0
         , event_handler/0
+        , add_handler/1
+        , add_handler/2
+        , delete_handler/1
+        , delete_handler/2
         , notify/1
         , user/0
         , is_authenticated/0
@@ -190,6 +194,20 @@ event_handler() ->
 -spec notify(Msg :: any()) -> ok.
 notify(Msg) ->
   gen_event:notify(event_handler(), Msg).
+
+%% @doc Adds an event handler
+add_handler(Module) ->
+  add_handler(Module, []).
+
+add_handler(Module, Args) ->
+  gen_event:add_handler(event_handler(), Module, Args).
+
+%% @doc Deletes an event handler
+delete_handler(Module) ->
+  delete_handler(Module, []).
+
+delete_handler(Module, Args) ->
+  gen_event:delete_handler(event_handler(), Module, Args).
 
 %% @doc Safely execute wf:user(); return username or 'undefined'.
 -spec user() -> any() | undefined.
