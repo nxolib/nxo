@@ -1,4 +1,4 @@
--module(ndopage_user_form).
+-module(nxopage_user_form).
 -include("nxo.hrl").
 
 -export([ main/0
