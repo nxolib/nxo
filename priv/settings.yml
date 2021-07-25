@@ -1,5 +1,7 @@
 groups:
   nxo: NXO Settings
+  user: User Settings
+  mail: Mail Settings
 
 settings:
   development_mode:
@@ -14,3 +16,29 @@ settings:
     group: nxo
     desc: Session Timeout
     value: 45
+
+  password_length:
+    group: user
+    desc: Minimum Password Length
+    value: 8
+  length_words:
+    group: user
+    desc: Minimum Length in Words
+    value: eight
+
+  smtp_host:
+    group: mail
+    desc: SMTP Relay
+    value: mailcatcher
+  smtp_port:
+    group: mail
+    desc: SMTP Port
+    value: 1025
+  smtp_from:
+    group: mail
+    desc: Outgoing Mail Address
+    value: outgoing@example.com
+  admin_addr:
+    group: mail
+    desc: Administrator Address
+    value: admin@example.com

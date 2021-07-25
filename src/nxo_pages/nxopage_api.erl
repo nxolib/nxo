@@ -22,7 +22,6 @@ body() ->
                    postback=regenerate}
           ]}.
 
-
 event(regenerate) ->
   NewKey = nxo_api:change_key(wf:user()),
   wf:set(api_key, NewKey).
