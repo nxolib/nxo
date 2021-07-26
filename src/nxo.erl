@@ -35,6 +35,7 @@
         , notify/1
         , user/0
         , is_authenticated/0
+        , consult_file/3
         ]).
 
 -define(EVENT, nxo_event_handler).
@@ -221,6 +222,31 @@ user() ->
 -spec is_authenticated() -> boolean().
 is_authenticated() ->
   not(user() == undefined).
+
+%% @doc Consult a file.  First try the app's priv dir (with the
+%% supplied sub directory and extension) then the NXO priv dir.
+-spec consult_file(atom() | binary() | string(),
+                   atom() | binary() | string(),
+                   binary() | string()) ->
+        any().
+consult_file(File, SubDir, Ext) ->
+  Filename = filename:join([wf:to_list(SubDir),
+                            (wf:to_list(File) ++ wf:to_list(Ext))]),
+  FileApp = filename:join([code:priv_dir(nxo:application()), Filename]),
+  case file:consult(FileApp) of
+    {ok, Terms} ->
+      Terms;
+    {error, enoent} ->
+      FileNXO = filename:join([code:priv_dir(nxo), Filename]),
+      case file:consult(FileNXO) of
+        {ok, Terms} ->
+          Terms;
+        {error, _} ->
+          logger:error("could not consult file: ~s", [Filename]),
+          error(consult_file_failed)
+      end
+  end.
+
 
 
 %%%%%%%%%%%%%%%%%

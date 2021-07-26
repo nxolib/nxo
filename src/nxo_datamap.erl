@@ -63,11 +63,7 @@ wash(F, Val) ->
   ?MODULE:F(Val).
 
 consult_spec(Map) ->
-  Filename = wf:to_list(Map) ++ ".erl",
-  App = nxo:application(),
-  File = filename:join([code:priv_dir(App), "datamap", Filename]),
-  {ok, Terms} = file:consult(File),
-  Terms.
+  nxo:consult_file(Map, datamap, ".erl").
 
 to_rounded_int(Str) ->
   case string:to_integer(Str) of

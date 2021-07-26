@@ -39,22 +39,7 @@ validate(Spec, Params) ->
     Params).
 
 consult_spec(SpecFile) ->
-  Filename = wf:to_list(SpecFile) ++ ".erl",
-  App = nxo:application(),
-  FileApp = filename:join([code:priv_dir(App), "validation", Filename]),
-  case file:consult(FileApp) of
-    {ok, Terms} -> Terms;
-    {error, enoent} ->
-      FileNXO = filename:join([code:priv_dir(nxo), "validation", Filename]),
-      case file:consult(FileNXO) of
-        {ok, Terms} -> Terms;
-        {error, enoent} ->
-          logger:error("Template file [~s] not found.", [Filename]),
-          error(template_not_found)
-      end
-  end.
-  %% {ok, Terms} = file:consult(File),
-  %% Terms.
+  nxo:consult_file(SpecFile, validation, ".erl").
 
 trimmed_data(ID) ->
   case wf:q(ID) of
