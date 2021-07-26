@@ -8,5 +8,6 @@ NXO Refactoring TODOs
     the app designer should be able to specify a module; further,
     if wf:user is undef, maybe show a login screen?
   - [ ] bootstrap rebar3 plugin?
-  - [ ] bottom admin buttons?
+  - [x] bottom admin buttons
   - [ ] implement page for retrieving audit data
+  - [ ] make nxo_authz dynamic and run-time configured

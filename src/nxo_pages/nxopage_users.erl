@@ -1,6 +1,5 @@
 -module(nxopage_users).
 -include("nxo.hrl").
--include_lib("paginate/include/records.hrl").
 -export([
           main/0
         , title/0
