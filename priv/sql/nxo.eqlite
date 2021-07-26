@@ -50,17 +50,10 @@ SELECT
   group_name,
   group_label,
   description,
-  global_only,
-  CASE WHEN nxo_2fa_groups.group_id IS NULL
-    THEN false
-    ELSE true
-  END AS secondary_auth_required
+  global_only
 
 FROM
   nxo_groups
-
-LEFT JOIN
-  nxo_2fa_groups USING (group_id)
 
 ORDER BY group_label;
 
@@ -329,12 +322,6 @@ SELECT user_id, org_id, group_id FROM globals;
 
 */
 
--- :user_requires_2fa
-SELECT COUNT(*)
-FROM  nxo_2fa_groups
-WHERE nxo_2fa_groups.group_id IN (SELECT nxo_user_groups.group_id
-                                   FROM nxo_user_groups
-                                   WHERE user_id = $1)
 
 -- :user_set_password
 UPDATE nxo_users

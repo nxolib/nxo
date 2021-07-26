@@ -31,8 +31,8 @@ authorize(EventType, AuthFn) ->
     {deny, Spec, User, Msg} ->
       Data = auth_log_data(EventType, Spec, User, Msg),
       logger:notice("~p~n", [Data]),
-      wf_context:event_module(page_not_authorized),
-      wf_context:page_module(page_not_authorized)
+      wf_context:event_module(nxopage_not_authorized),
+      wf_context:page_module(nxopage_not_authorized)
   end.
 
 reset_session_timer() ->
