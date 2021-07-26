@@ -28,9 +28,14 @@
         , global_auth_allowed/0
         , global_auth_enabled/0
         , event_handler/0
+        , add_handler/1
+        , add_handler/2
+        , delete_handler/1
+        , delete_handler/2
         , notify/1
         , user/0
         , is_authenticated/0
+        , consult_file/3
         ]).
 
 -define(EVENT, nxo_event_handler).
@@ -191,6 +196,20 @@ event_handler() ->
 notify(Msg) ->
   gen_event:notify(event_handler(), Msg).
 
+%% @doc Adds an event handler
+add_handler(Module) ->
+  add_handler(Module, []).
+
+add_handler(Module, Args) ->
+  gen_event:add_handler(event_handler(), Module, Args).
+
+%% @doc Deletes an event handler
+delete_handler(Module) ->
+  delete_handler(Module, []).
+
+delete_handler(Module, Args) ->
+  gen_event:delete_handler(event_handler(), Module, Args).
+
 %% @doc Safely execute wf:user(); return username or 'undefined'.
 -spec user() -> any() | undefined.
 user() ->
@@ -203,6 +222,31 @@ user() ->
 -spec is_authenticated() -> boolean().
 is_authenticated() ->
   not(user() == undefined).
+
+%% @doc Consult a file.  First try the app's priv dir (with the
+%% supplied sub directory and extension) then the NXO priv dir.
+-spec consult_file(atom() | binary() | string(),
+                   atom() | binary() | string(),
+                   binary() | string()) ->
+        any().
+consult_file(File, SubDir, Ext) ->
+  Filename = filename:join([wf:to_list(SubDir),
+                            (wf:to_list(File) ++ wf:to_list(Ext))]),
+  FileApp = filename:join([code:priv_dir(nxo:application()), Filename]),
+  case file:consult(FileApp) of
+    {ok, Terms} ->
+      Terms;
+    {error, enoent} ->
+      FileNXO = filename:join([code:priv_dir(nxo), Filename]),
+      case file:consult(FileNXO) of
+        {ok, Terms} ->
+          Terms;
+        {error, _} ->
+          logger:error("could not consult file: ~s", [Filename]),
+          error(consult_file_failed)
+      end
+  end.
+
 
 
 %%%%%%%%%%%%%%%%%

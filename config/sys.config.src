@@ -1,0 +1,74 @@
+%% -*- mode: erlang -*-
+
+[
+  {nxo,
+    [
+      {application, ${NXO_APPLICATION}}
+    , {development_mode, ${DEVELOPMENT_MODE}}
+    , {global_auth_required, false}
+
+    %% The fallback page module prefix.  Page modules in the
+    %% NXO application will have this prefix and be called if
+    %% a corresponding page (prefixed with "page") in the app
+    %% does not exist.
+    , {nxo_module_prefix, nxopage}
+
+    %% Assets packaged with the NXO application,
+    %% This is a subdir of the nxo priv.
+    , {nxo_static_assets, "static"}
+
+    %% Assets packaged with the actual application.
+    %% This is also a subdir of priv.  This exists here
+    %% only for testing.
+    , {static_assets, "appstatic"}
+
+    %% Path to the Nitrogen template directory
+    , {html_template_dir, [{priv_dir, nxo, "templates"}]}
+
+    %% Font Awesome Library
+    , {fa_url, ""}
+   ]},
+
+   {nxo_db,
+    [{pools, [#{name => db,
+                host => "db",
+                user => "db_user",
+                pass => "db_pass",
+                database => "nxo_db"}]},
+      {retries, 3},
+      {retry_sleep, 200},
+      {default_return, auto},
+      {ddl_source, [{priv_dir, nxo, "ddl"}]},
+      {sql_source, [{priv_dir, nxo, "sql"}]}
+    ]},
+
+  %% NB: These are DTL templates (not Nitrogen templates).
+  {nxo_template,
+    [{path, [{priv_dir, nxo, "dtl"}]}]},
+
+  {kernel,
+    [{logger,
+      [{handler, default, logger_std_h,
+       #{formatter => {logger_formatter,
+                        #{template => ["[", level, "] ", msg, "\n"],
+                          single_line => false}}}}]},
+      {logger_level, debug} ]},
+
+  {nitrogen_core, [{module_prefix, "page"}]},
+
+  {sync, [{growl, none}]},
+
+  {simple_bridge,
+    [{handler, nitrogen},
+     {backend, cowboy},
+     {address, "0.0.0.0"},
+     {port, 3003},
+     {document_root, see_nxo_sup},
+     {static_paths, []},
+     {max_post_size, 10},
+     {max_file_size, 10},
+     {max_file_in_memory_size, 0},
+     {scratch_dir, "/tmp/scratch"}
+    ]}
+
+].

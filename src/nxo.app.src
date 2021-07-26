@@ -1,7 +1,24 @@
 {application, nxo,
  [{description, "Nitrogen/NXO helper library"},
-  {vsn, "0.1.0"},
+  {vsn, {git, short}},
   {registered, []},
+  {mod, { nxo_app, []}},
+  {included_applications, [
+                           cowboy
+                          , nitrogen_core
+                          , nprocreg
+                          , simple_bridge
+                          , nitro_cache
+                          , sync
+                          , yamerl
+                          , erlsom
+                          , jsx
+                          , qdate
+                          , uuid
+                          , rekt
+                          , nxo_db
+                          , nxo_template
+                          ]},
   {applications,
    [kernel,
     stdlib

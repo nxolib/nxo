@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" >
+    <head>
+        <title>[[[page:title()]]]</title>
+        [[[ nxo_view:header() ]]]
+    </head>
+
+    <body>
+        [[[ nxo_view:menu() ]]]
+        <div class="container mb-5">
+            <div>
+                <a href="/groups">Return to Groups List</a>
+            </div>
+            <p class="h2 my-4">[[[page:title()]]]</p>
+            <form class="col-sm-6">
+
+                <div class="form-group" >
+                    <label for="group_name">Group Name</label>
+                    <input type="text"
+                           value="[[[nxo_forms:form_value(group_name)]]]"
+                           class="form-control wfid_group_name"
+                           id="group_name" />
+                    <div class="invalid-feedback">
+                        Required field; must be unique.
+                    </div>
+                    <small id="group_name_help" class="form-text text-muted">
+                        A one word name for the group, e.g., "managers".
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label for="group_label">Group Label</label>
+                    <input type="text"
+                           value="[[[nxo_forms:form_value(group_label)]]]"
+                           class="form-control wfid_group_label"
+                           id="group_label" />
+                    <div class="invalid-feedback">
+                        Required field; must be unique.
+                    </div>
+                    <small id="group_label_help" class="form-text text-muted">
+                        A descriptive title for the group, e.g "Data Managers".
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <input type="text"
+                           class="form-control wfid_description"
+                           value="[[[nxo_forms:form_value(description)]]]"
+                           id="description" />
+                    <small id="description_help" class="form-text text-muted">
+                        Optional
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label for="global_only">Global</label>
+                    <select class="form-control wfid_global_only"
+                            id="global_only">
+                        <option value="false"
+                                [[[nxo_forms:bool_selected(global_only, false)]]]>
+                            No - Group is avaialble to all organizations
+                        </option>
+                        <option value="true"
+                                [[[nxo_forms:bool_selected(global_only, true)]]]>
+                            Yes - Group is only available to global users
+                        </option>
+                    </select>
+                </div>
+
+                [[[page:submit_button()]]]
+            </form>
+        </div>
+
+        [[[ nxo_view:footer() ]]]
+    </body>
+</html>

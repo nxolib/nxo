@@ -1,0 +1,32 @@
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">{{ user.last_name }}, {{ user.first_name }}</h5>
+        <div class="ml-3">
+        
+            <div class="row">
+                <div class="col-sm-2 text-muted">Email</div>
+                <div class="col-sm-10">{{ user.email }}</div>
+            </div>
+            <div class="row">
+                <div class="col-sm-2 text-muted">Description</div>
+                <div class="col-sm-10">{{ user.description }}</div>
+            </div>
+            <div class="row">
+                <div class="col-sm-2 text-muted">Active</div>
+                <div class="col-sm-10">{{ user.active | yesno:"Yes,No" }}</div>
+            </div>
+            <div class="row">
+                <div class="col-sm-2 text-muted">AD Account</div>
+                <div class="col-sm-10">
+                    {% if user.samaccountname %}
+                        Yes ({{ user.samaccountname }})</div>
+                    {% else %}
+                        No
+                    {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+    
+
+    

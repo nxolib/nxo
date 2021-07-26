@@ -1,0 +1,329 @@
+-- :global_org_id
+SELECT global_org_id()
+
+
+-- :api_token_auth
+
+-- two inputs:
+--   $1 -- api token
+--   $2 -- org_abbrv
+--
+-- will find a result where the api_token is valid and the user it is
+-- valid for is in the 'api' group specified by the org_abbrv.
+
+
+WITH tokens (user_id) AS (
+  SELECT user_id
+  FROM nxo_api_keys
+  WHERE api_key = $1
+)
+
+SELECT nxo_orgs.org_id, tokens.user_id, org_name, org_abbrv
+FROM tokens, nxo_orgs
+JOIN nxo_user_orgs USING (org_id)
+JOIN nxo_user_groups USING (org_id)
+WHERE LOWER(nxo_orgs.org_abbrv) = LOWER($2)
+  AND nxo_user_groups.group_id IN
+      (SELECT group_id FROM nxo_groups WHERE group_name = 'api')
+
+-- :check_dup
+SELECT check_dup($1, $2, $3)
+
+-- :check_dup_with_id
+SELECT check_dup($1, $2, $3, $4, $5)
+
+-- :group_add
+INSERT INTO nxo_groups
+  (group_id, group_name, group_label, description, global_only)
+VALUES ($1, $2, $3, $4, $5)
+ON CONFLICT(group_id)
+DO UPDATE SET group_name = $2,
+              group_label = $3,
+              description = $4,
+              global_only = $5
+          WHERE nxo_groups.group_id = $1
+RETURNING group_id
+
+-- :group_all_groups
+SELECT
+  nxo_groups.group_id,
+  group_name,
+  group_label,
+  description,
+  global_only
+
+FROM
+  nxo_groups
+
+ORDER BY group_label;
+
+-- :group_delete
+DELETE
+FROM nxo_groups
+WHERE group_id::text = $1
+
+-- :group_find
+SELECT *
+FROM nxo_groups
+WHERE group_name = $1 OR group_id::text = $1
+
+-- :org_add
+INSERT INTO nxo_orgs (org_id, org_name, org_abbrv)
+VALUES ($1, $2, $3)
+ON CONFLICT(org_id)
+DO UPDATE SET org_name = $2,
+              org_abbrv = $3
+          WHERE nxo_orgs.org_id = $1
+RETURNING org_id
+
+-- :org_add_user
+INSERT INTO nxo_user_orgs (user_id, org_id, is_primary, is_contact, title)
+VALUES ($1, $2, $3, $4, $5)
+
+-- :org_contact_add
+INSERT INTO nxo_org_contact (
+         org_id
+       , address_1
+       , address_2
+       , address_3
+       , city
+       , state
+       , country
+       , postcode)
+VALUES($1, $2, $3, $4, $5, $6, $7, $8)
+ON CONFLICT(org_id)
+DO UPDATE SET address_1 = $2,
+              address_2 = $3,
+              address_3 = $4,
+              city = $5,
+              state = $6,
+              country = $7,
+              postcode = $8
+          WHERE nxo_org_contact.org_id = $1
+RETURNING org_id
+
+-- :org_delete
+DELETE FROM nxo_orgs
+WHERE org_id::text = $1
+
+-- :org_find
+SELECT *
+FROM nxo_orgs
+LEFT JOIN nxo_org_contact USING (org_id)
+WHERE LOWER(org_name) = LOWER($1)
+   OR LOWER(org_abbrv) = LOWER($1)
+   OR org_id::text = $1
+
+-- :all_orgs
+SELECT *
+FROM nxo_orgs
+ORDER BY org_name;
+
+-- :pending_user_count
+SELECT COUNT(*)
+FROM nxo_user_groups
+WHERE group_id = pending_group()
+
+-- :role_clear_all
+DELETE FROM nxo_user_groups
+WHERE user_id = $1
+
+-- :role_get_has_role
+SELECT COUNT(*)
+FROM nxo_user_groups
+JOIN nxo_groups USING (group_id)
+JOIN nxo_users USING (user_id)
+WHERE (nxo_users.user_id = $1::uuid OR nxo_users.email = $1::text)
+  AND lower(group_name) = lower($2)
+
+-- :role_get_roles
+SELECT group_name
+FROM nxo_user_groups
+JOIN nxo_groups USING (group_id)
+WHERE user_id = $1
+
+-- :role_set_has_role
+INSERT INTO nxo_user_groups (user_id, group_id)
+VALUES ($1, (SELECT group_id
+             FROM nxo_groups
+             WHERE LOWER(group_name) = LOWER($2)))
+
+-- :role_unset_has_role
+DELETE FROM nxo_user_groups
+WHERE user_id = $1
+  AND group_id = (SELECT group_id
+                  FROM nxo_groups
+                  WHERE LOWER(group_name) = LOWER($2))
+
+
+-- :settings_get_group
+SELECT setting_group, setting_name, setting_display,
+       setting_value, setting_desc, setting_type
+FROM nxo_settings
+WHERE setting_group = $1
+ORDER BY setting_name
+
+-- :settings_get_groups
+SELECT setting_group, setting_group_label
+FROM nxo_setting_labels
+ORDER BY setting_group_label
+
+-- :settings_get_item
+SELECT setting_value
+FROM nxo_settings
+WHERE setting_group = $1
+  AND setting_name = $2
+
+-- :settings_set_item
+UPDATE nxo_settings
+SET setting_value = $3
+WHERE setting_group = $1
+  AND setting_name = $2
+
+-- :user_active_flag
+UPDATE nxo_users
+SET active = $2
+WHERE user_id::text = $1
+RETURNING user_id
+
+-- :user_add
+INSERT INTO nxo_users
+  (user_id, email, phone, first_name, last_name,
+   description, active, samaccountname, password)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+ON CONFLICT(user_id)
+DO UPDATE SET email = $2,
+              phone = $3,
+              first_name = $4,
+              last_name = $5,
+              description = $6,
+              active = $7,
+              password = $9
+          WHERE nxo_users.user_id = $1
+RETURNING user_id
+
+-- :user_all
+SELECT
+  u.*,
+  o.org_id, o.org_name, o.org_abbrv, o.description,
+  uo.is_primary, uo.is_contact, uo.title,
+  (SELECT COUNT(*)
+   FROM nxo_user_groups ug
+   WHERE ug.user_id = u.user_id
+     AND ug.group_id = (SELECT group_id('pending'))) > 0 AS is_pending
+
+FROM nxo_users u
+LEFT OUTER JOIN nxo_user_orgs uo ON u.user_id = uo.user_id
+                                    AND  uo.is_primary = true
+LEFT OUTER JOIN nxo_orgs o USING (org_id)
+ORDER BY is_pending DESC, u.last_name, u.first_name
+
+
+-- :user_delete
+DELETE FROM nxo_users
+WHERE user_id::text = $1
+
+-- :user_find
+SELECT
+  u.*,
+  o.org_id, o.org_name, o.org_abbrv, o.description as org_description,
+  uo.is_primary, uo.is_contact, uo.title,
+  ARRAY(SELECT group_id
+        FROM nxo_user_groups g
+        WHERE g.user_id = u.user_id AND
+          (g.org_id = o.org_id or g.org_id = (SELECT global_org_id())))
+          AS groups,
+  (SELECT COUNT(*)
+   FROM nxo_user_groups ug
+   WHERE ug.user_id = u.user_id
+     AND ug.group_id = (SELECT group_id('pending'))) > 0 AS is_pending
+
+
+FROM nxo_users u
+LEFT OUTER JOIN nxo_user_orgs uo ON u.user_id = uo.user_id
+                                    AND  uo.is_primary = true
+LEFT OUTER JOIN nxo_orgs o USING (org_id)
+WHERE
+   ($1::TEXT IS NOT NULL AND $1::TEXT != '') AND
+   (LOWER(email) = LOWER($1)
+     OR u.user_id::text = $1
+     OR LOWER(samaccountname) = LOWER($1))
+
+-- :user_get_password
+SELECT password
+FROM nxo_users
+WHERE user_id = $1
+
+-- :user_is_pending
+SELECT COUNT(*)
+FROM nxo_user_groups
+WHERE
+  user_id = $1
+  AND
+  group_id = (select group_id from nxo_groups where group_name = 'pending')
+
+-- :user_org_add
+INSERT INTO nxo_user_orgs (user_id, org_id, is_contact, title)
+VALUES ($1, $2, $3, $4)
+ON CONFLICT(user_id, org_id)
+DO UPDATE SET is_contact = $3,
+              title = $4
+          WHERE nxo_user_orgs.user_id = $1
+            and nxo_user_orgs.org_id = $2
+RETURNING user_id, org_id
+
+-- :user_org_groups
+WITH
+del AS (                        -- delete existing groups
+  DELETE FROM nxo_user_groups
+  WHERE user_id = $1::UUID AND
+    (org_id = $2::UUID or org_id = (SELECT global_org_id()))
+  RETURNING *
+),
+
+raw AS (                        -- unpack parameter arrays
+  SELECT
+    UNNEST($3::UUID[]) AS user_id,
+    UNNEST($4::UUID[]) AS org_id,
+    UNNEST($5::UUID[]) AS group_id
+),
+
+globals AS (                    -- account for global grps
+  SELECT
+    group_id,
+
+    COALESCE(
+      (SELECT DISTINCT user_id FROM del),  -- [*] See note below.
+      (SELECT DISTINCT user_id FROM raw)
+    ) AS user_id,
+
+    CASE (SELECT global_only
+          FROM nxo_groups
+          WHERE nxo_groups.group_id = raw.group_id)
+      WHEN true THEN (SELECT global_org_id())
+      ELSE raw.org_id
+    END AS org_id
+
+  FROM raw
+)
+
+INSERT INTO nxo_user_groups (user_id, org_id, group_id)
+SELECT user_id, org_id, group_id FROM globals;
+
+/*
+
+   About that COALESCE() ...
+
+   CTEs execute within the same "snapshot" but the order in which the
+   statements are executed is not well defined.  One can force the
+   order by using the results of a CTE in a subsequent query.  Here we
+   *need* the DELETE to happen before the INSERT INTO otherwise we
+   bump up against the unique constraint.
+
+*/
+
+
+-- :user_set_password
+UPDATE nxo_users
+SET password = $2
+WHERE user_id::text = $1 OR email = $1::text

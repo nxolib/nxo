@@ -1,0 +1,28 @@
+#!/bin/bash
+
+case $1 in
+
+    start)
+        docker stack deploy -c docker-compose.yml nxo
+        ;;
+    stop)
+        docker stack rm nxo
+        ;;
+    ps)
+        docker stack ps nxo
+        ;;
+    shell)
+        docker attach $(docker ps --filter name=nxo_fe --format "{{.ID}}")
+        ;;
+    db)
+        DB="/usr/bin/psql -Udb_user nxo_db"
+        DBID=$(docker ps --filter name=nxo_db.1 --format "{{.ID}}")
+        docker exec -it $DBID $DB
+        ;;
+    css)
+        bin/bootstrap compile
+        ;;
+    *)
+        echo "start|stop|shell|db|ps|css"
+        ;;
+esac

@@ -1,0 +1,33 @@
+<div clas="card">
+    <div class="card-body">
+        <h5 class="card-title">{{ org_name }}</h5>
+        
+        {% if address_1 %}
+        <span class="card-text">{{ address_1 }}</span><br />
+        {% endif %}
+
+        {% if address_2 %}        
+        <span class="card-text">{{ address_2 }}</span><br />
+        {% endif %}
+
+        {% if address_3 %}
+        <span class="card-text">{{ address_3 }}</span><br />
+        {% endif %}
+
+        {% if city %}
+        <span class="card-text">{{ city }}, {{ state }}</span><br />
+        {% endif %}
+
+        {% if postcode %}
+        <span class="card-text">{{ postcode }}</span><br />
+        {% endif %}
+
+        {% if country %}
+        <span class="card-text">{{ country }}</span><br />
+        {% endif %}
+        
+    </div>
+    <div class="card-footer text-muted">
+        <span>{{ org_abbrv }} | {{ org_id }}</span>
+    </div>
+</div>

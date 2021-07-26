@@ -1,0 +1,21 @@
+<table class="table mb-5">
+    <tr>
+        <td>[[[page:button(add)]]]</td>
+        <th>Organization Name</th>
+        <th>Short Name</th>
+    </tr>
+
+    {% for o in orgs %}
+        <tr>
+            <td>
+                [[[page:button({info, "{{o.org_id}}"})]]]
+                {% if o.org_abbrv != "global" %}
+                    [[[page:button({edit, "{{o.org_id}}"})]]]
+                    [[[page:button({delete, "{{o.org_id}}"})]]]
+                {% endif %}
+            </td>
+            <td>{{ o.org_name }}</td>
+            <td>{{ o.org_abbrv }}</td>
+        </tr>
+    {% endfor %}
+</table>

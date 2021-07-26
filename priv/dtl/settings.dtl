@@ -1,0 +1,26 @@
+<div class="wfid_settingpage">
+  {% for group in groups %}
+    <div class="card mt-5">
+      <div class="card-body">
+        <h5>{{ group.setting_group_label }}</h5>
+        <div class="mb-3 text-muted">{{ group.setting_group }}</div>
+        <div class="col-lg-6">
+          {% for i in group.settings %}
+            {# setting, value, label, setting_group #}
+            <label for="{{ i.4 }}_{{ i.1 }}">{{i.3}}</label>
+            <input type="textbox"
+                   id="{{ i.4 }}_{{ i.1 }}"
+                   class="wfid_{{ i.4 }}_{{ i.1 }} form-control"
+                   value="{{i.2}}" />
+            <small class="form-text text-muted">{{ i.1 }}</small>
+            <br />
+          {% empty %}
+            <i>No settings found.</i>
+          {% endfor %}
+        </div>
+        [[[ page:button({save_group, "{{ group.setting_group }}"}) ]]]
+
+      </div>
+    </div>
+  {% endfor %}
+</div>
