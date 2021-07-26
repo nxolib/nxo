@@ -3,6 +3,7 @@
 -export([
           event/1
         , set_user/1
+        , set_user/2
         ]).
 
 -security(none).

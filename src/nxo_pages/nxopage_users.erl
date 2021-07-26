@@ -38,7 +38,7 @@ event(add) ->
 event(addad) ->
   wf:redirect("/user_ad_add");
 event({info, ID}) ->
-  page_user_info:open_panel(ID);
+  nxopage_user_info:open_panel(ID);
 event({edit, ID}) ->
   wf:redirect("/user_form/" ++ ID);
 event({activate, ID}) ->
@@ -50,7 +50,7 @@ event({inactivate, ID}) ->
 event({mask, ID}) ->
   case nxo_auth_user:find(ID) of
     [U] ->
-      page_login:set_user(U, true),
+      nxo_login_delegate:set_user(U, true),
       wf:redirect("/");
     _ ->
       ok

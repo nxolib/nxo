@@ -26,7 +26,7 @@ event(add) ->
 event({edit, ID}) ->
   wf:redirect("/org_form/" ++ ID);
 event({info, ID}) ->
-  page_org_info:open_panel(ID);
+  nxopage_org_info:open_panel(ID);
 event({delete, ID}) ->
   wf:wire(#confirm{ text="Do you want to continue?",
                     postback={delete_confirmed, ID} });
