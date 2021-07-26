@@ -31,8 +31,10 @@ authorize(EventType, AuthFn) ->
     {deny, Spec, User, Msg} ->
       Data = auth_log_data(EventType, Spec, User, Msg),
       logger:notice("~p~n", [Data]),
-      wf_context:event_module(nxopage_not_authorized),
-      wf_context:page_module(nxopage_not_authorized)
+      NotAuthMod = nxo_settings:get(nxo, not_authorized_module,
+                                    nxopage_not_authorized),
+      wf_context:event_module(NotAuthMod),
+      wf_context:page_module(NotAuthMod)
   end.
 
 reset_session_timer() ->

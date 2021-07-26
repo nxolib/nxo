@@ -5,6 +5,7 @@
         , set/4
         , get/1
         , get/2
+        , get/3
         , set_group_description/2
         , list_groups/0
         , group_settings/1
@@ -48,10 +49,13 @@ get(Setting) when is_list(Setting) ->
 
 -spec get(group(), setting()) -> binary() | undefined.
 get(Group, Setting) ->
+  get(Group, Setting, undefined).
+
+get(Group, Setting, Default) ->
   Params = #{ group => Group, setting => Setting },
   case nxo_db:q(nxo_select_setting_value, Params, scalar) of
     [] ->
-      application:get_env(Group, Setting, undefined);
+      application:get_env(Group, Setting, Default);
     Value ->
       Value
   end.
