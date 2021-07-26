@@ -55,9 +55,10 @@ submission() ->
 %% parameters (UIDParam, OIDParam, GIDs) are arrays that are unnested
 %% in the query and **must** be the same length (hence the duplicate).
 update_groups(UID, OID, GIDs) ->
+  BinGIDs = lists:map(fun wf:to_binary/1, GIDs),
   UIDParam = lists:duplicate(length(GIDs), UID),
   OIDParam = lists:duplicate(length(GIDs), OID),
-  nxo_db:query(user_org_groups, [UID, OID, UIDParam, OIDParam, GIDs]).
+  nxo_db:query(user_org_groups, [UID, OID, UIDParam, OIDParam, BinGIDs]).
 
 
 % prepares the Organization and Group part of the form.  we did that

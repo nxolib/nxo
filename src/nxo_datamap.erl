@@ -11,6 +11,7 @@
         , emptystr/1
         , trim/1
         , passwd/1
+        , bool/1
         ]).
 
 %% @doc Apply a datamap when there's a context to retrieve data from.
@@ -51,9 +52,10 @@ apply_map([{FormField, Type, WashFns}|T], Params, Data) ->
 
 default_wash_options(Type, WashFns) ->
   case Type of
-    string -> [trim, emptystr | WashFns];
-    passwd -> [emptystr, passwd | WashFns];
-    _      -> WashFns
+    string  -> [trim, emptystr | WashFns];
+    passwd  -> [emptystr, passwd | WashFns];
+    boolean -> [bool | WashFns];
+    _       -> WashFns
   end.
 wash({M, F}, Val) ->
   apply(M, F, [Val]);
@@ -70,6 +72,14 @@ to_rounded_int(Str) ->
     {error, _} -> 0;
     {I, _} -> I
   end.
+
+bool(true)        -> true;
+bool("true")      -> true;
+bool(<<"true">>)  -> true;
+bool(false)       -> false;
+bool("false")     -> false;
+bool(<<"false">>) -> false.
+
 
 emptystr([]) -> undefined;
 emptystr(Str) -> Str.
