@@ -3,3 +3,20 @@ INSERT INTO nxo_audit
  (activity, user_id, target, result, comment)
 VALUES
  (:activity, :user_id, :target, :result, :comment);
+
+-- :audit_recent
+SELECT
+  audit_id,
+  activity,
+  user_id,
+  target,
+  result,
+  comment,
+  action_dt AT TIME ZONE 'America/New_York' as action_dt,
+  email
+FROM
+  nxo_audit
+LEFT JOIN
+  nxo_users USING (user_id)
+ORDER BY action_dt DESC
+LIMIT 250;

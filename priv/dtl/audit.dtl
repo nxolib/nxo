@@ -1,0 +1,29 @@
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Event</th>
+      <th>User</th>
+      <th>Detail</th>
+      <th>Comment</th>
+    </tr>
+  {% for a in log %}
+    <tr>
+      <td>
+        {{ a.action_dt|date:"Y-m-d H:i" }}
+      </td>
+      <td>
+        {{ a.activity }}
+      </td>
+      <td>
+        {{ a.email }}
+      </td>
+      <td>
+        {{ a.target }}
+      </td>
+      <td>
+        {{ a.comment }}
+      </td>
+    </tr>
+  {% endfor %}
+</table>

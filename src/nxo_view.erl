@@ -15,6 +15,11 @@
         , account_menu/0
         ]).
 
+-export([
+          menu_item/3
+        , rule/0
+        ]).
+
 %% @doc Reload the current page.  This is a side effect only function.
 -spec reload_page() -> ok.
 reload_page() ->
@@ -177,38 +182,29 @@ admin_menu() ->
                         url="#",
                         text="Administration"},
                   #panel{class="dropdown-menu dropdown-menu-right",
-                         body=[
-                               admin_menu(app_settings),
-                               admin_menu(user_management),
-                               admin_menu(group_management)]}]}.
+                         body=[ apply(?MODULE, menu_item, I) ||
+                                I <- admin_menu_items()]}
+                 ]}.
 
-admin_menu(app_settings) ->
-  case nxo_authz:may(admin_everything) of
-    false -> [];
-    true -> [menu_item("/settings", "Application Settings"),
-             menu_item("/mailcheck", "Test Email Connectivity")]
-  end;
-admin_menu(user_management) ->
-  case nxo_authz:may(admin_users) of
-    false -> [];
-    true  -> [menu_item("/users", "User Management"),
-              menu_item("/organization", "Organization Management")]
-  end;
 
-admin_menu(group_management) ->
-  case nxo_authz:may(admin_everything) of
-    false -> [];
-    true  -> [menu_item("/groups", "Group Management")]
-  end;
+admin_menu_items() ->
+  [
+   [admin_everything, "/settings",     "Application Settings"],
+   [admin_users,      "/users",        "User Management"],
+   [admin_users,      "/organization", "Organization Management"],
+   [admin_everything, "/groups",       "Group Management"],
+   [admin_everything, "/audit",        "Application Audit"],
+   [admin_everything, "/mailcheck",    "Test Email Connectivity"]
+  ].
 
-admin_menu(data_management) ->
-  case nxo_authz:may(admin_data) of
-    false -> [];
-    true  -> [menu_item("/field_auth", "Field Authorizations"),
-              menu_item("/function_authz", "Function Authorizations")]
+menu_item(Realm, URL, Label) ->
+  case nxo_authz:may(Realm) of
+    true -> menu_item(URL, Label);
+    false -> []
   end.
 
 menu_item(URL, Label) ->
   #link{class="dropdown-item", url=URL, text=Label}.
 
-rule() -> #panel{class="dropdown-divider"}.
+rule() ->
+  #panel{class="dropdown-divider"}.
