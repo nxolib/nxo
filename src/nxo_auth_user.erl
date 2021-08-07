@@ -55,7 +55,7 @@ toggle_active_flag(_, _) ->
 %% @doc Possibly remove user from pending state.
 -spec maybe_confirm_account(string()) -> ok.
 maybe_confirm_account(ID) ->
-  case nxo_auth_group:remove_from_group(ID, ?ROLE_PENDING) of
+  case nxo_auth_group:remove_from_group(ID, pending) of
     {ok, 0} -> ok;
     {ok, 1} -> nxo:notify({account_confirmed, ID})
   end.

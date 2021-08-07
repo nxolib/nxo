@@ -27,33 +27,6 @@
 %% The name of the NXO event handler.
 -define(EVENT, nxo_event_handler).
 
-%%%% ROLE/GROUP NAMES
-%%
-%% Some prelim groups.  See nxo_groups for usage.
-%%
-%% Superusers
--define(ROLE_SUPERUSER, "administrators").
-
-%% User Managers
--define(ROLE_USERMGMT, "usermgmt").
-
-%% Data Managers
--define(ROLE_DATAMGMT, "datamgmt").
-
-%% HIPAA Users
--define(ROLE_HIPAA, "hipaausers").
-
-%% Non-privileged Users
--define(ROLE_USER, "users").
-
-%% Users Requiring Password Change
--define(ROLE_PASSWD, "passwd").
-
-%% Users Pending Confirmation
--define(ROLE_PENDING, "pending").
-
-%% API authorized users
--define(ROLE_API, "api").
 
 
 %%%%% MAIL STUFF

@@ -100,3 +100,12 @@ CREATE TABLE IF NOT EXISTS nxo_phones (
   CONSTRAINT org_constr  UNIQUE (org_id, label),
   CONSTRAINT user_constr UNIQUE (user_id, label)
 );
+
+-- authz groups
+CREATE TABLE IF NOT EXISTS nxo_realms (
+  realm_id    UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  realm       VARCHAR(128) NOT NULL UNIQUE,
+  description VARCHAR(255) NOT NULL,
+  required    BOOLEAN NOT NULL DEFAULT false,
+  group_ids   UUID[] NOT NULL DEFAULT ARRAY[]::UUID[]
+);

@@ -31,15 +31,6 @@ realms:
       - administrators
       - datamgmt
 
-  login:
-    desc: User may login to the application.
-    required: true
-    groups:
-      - administrators
-      - usermgmt
-      - datamgmt
-      - users
-
   api:
     desc: User may interact with the API.
     required: true

@@ -5,49 +5,53 @@
           may/1
         , is/1
         , is_pending/1
+        , init/0
         ]).
 
-%% @doc Return true if the user is explicitly in this group.  We'll
-%% allow some symbolic names here "superuser" for "administrator" for
-%% instance.
--spec is(Group :: atom) -> true | false.
-is(superuser) -> is(?ROLE_SUPERUSER);
-is(Group) -> wf:role(Group).
+-define(DEFAULTS, "authz_default.yml").
 
+init() ->
+  load_defaults().
 
-%% @doc Return true if the user in context has this authz.
--spec may(Permission :: atom) -> true | false.
+may(RealmOrGroup) ->
+  wf:role(RealmOrGroup).
 
-may(admin_something) ->
-  any([?ROLE_SUPERUSER, ?ROLE_USERMGMT, ?ROLE_DATAMGMT]);
+is(RealmOrGroup) ->
+  wf:role(RealmOrGroup).
 
-may(admin_everything) -> wf:role(?ROLE_SUPERUSER);
-
-may(admin_users) ->
-  any([?ROLE_SUPERUSER, ?ROLE_USERMGMT]);
-
-may(admin_data) ->
-  any([?ROLE_SUPERUSER, ?ROLE_DATAMGMT]);
-
-may(view_hipaa) ->
-  any([?ROLE_SUPERUSER, ?ROLE_DATAMGMT, ?ROLE_HIPAA]);
-
-may(view_data) ->
-  any([?ROLE_SUPERUSER, ?ROLE_DATAMGMT, ?ROLE_HIPAA, ?ROLE_USER]);
-
-may(login) ->
-  any([?ROLE_SUPERUSER, ?ROLE_USERMGMT, ?ROLE_DATAMGMT,
-       ?ROLE_HIPAA, ?ROLE_USER]);
-
-may(api) ->
-  any([?ROLE_SUPERUSER, ?ROLE_API]).
-
-any(Roles) ->
-  lists:any(fun(Role) -> wf:role(Role) end, Roles).
-
+%% We're asking about a 3rd party ID here, so wf:role/1
+%% won't work.
 is_pending(ID) ->
   case nxo_db:scalar_query(user_is_pending, [ID]) of
     0 -> false;
     _ -> true
   end.
-       
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+%% INTERNAL FUNCTIONS %%
+%%%%%%%%%%%%%%%%%%%%%%%%
+
+load_defaults() ->
+  Filename = application:get_env(nxo:application(), authz_defaults, ?DEFAULTS),
+  DefaultsFile = filename:join(code:priv_dir(nxo:application()), Filename),
+  case filelib:is_file(DefaultsFile) of
+    true ->
+      logger:info("NXO: loading authz_defaults file ~s", [DefaultsFile]),
+      load_defaults(DefaultsFile);
+    false ->
+      logger:info("NXO: no authz_defaults file available.")
+  end.
+
+load_defaults(DefaultsFile) ->
+  Realms = proplists:get_value("realms", hd(yamerl:decode_file(DefaultsFile))),
+  lists:map(fun insert_realm/1, Realms).
+
+%% NB: non-existent groups will be silently skipped!
+insert_realm({Realm, PList}) ->
+  Desc = proplists:get_value("desc", PList),
+  Required = proplists:get_value("required", PList, false),
+  Groups = lists:filter(fun([]) -> false;
+                           (_)    -> true end,
+                        [ nxo_db:q(group_id, [G]) ||
+                          G <- proplists:get_value("groups", PList, []) ]),
+  nxo_db:q(insert_realm, [Realm, Desc, Required, Groups]).
