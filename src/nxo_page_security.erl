@@ -125,7 +125,8 @@ check_memberships(User, Groups) ->
   end.
 
 is_member(User, Group) ->
-  case nxo_db:scalar_query(role_get_has_role, [User, Group]) of
-    N when N > 0 -> true;
-    _            -> false
-  end.
+  nxo_roles:has_role(User, Group).
+  %% case nxo_db:scalar_query(role_get_has_role, [User, Group]) of
+  %%   N when N > 0 -> true;
+  %%   _            -> false
+  %% end.

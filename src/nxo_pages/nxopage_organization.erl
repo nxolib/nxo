@@ -47,7 +47,7 @@ button({info, ID}) ->
           body=nxo:fa("info-circle"),
           class=?btn_primary};
 button({delete, ID}) ->
-  case nxo_authz:is(administrator) of
+  case wf:role("global::administrator") of
     false -> [];
     true  -> #button{body=nxo:fa(ban),
                      class=?btn_danger,

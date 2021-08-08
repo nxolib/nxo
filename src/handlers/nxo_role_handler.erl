@@ -9,7 +9,6 @@
         , clear_all/2
         ]).
 
-
 init(_Config, State) ->
   {ok, State}.
 
@@ -17,7 +16,7 @@ finish(_Config, State) ->
   {ok, State}.
 
 get_has_role(Role, _Config, _State) ->
-  nxo_db:scalar_query(role_get_has_role, [wf:user(), Role]) > 0.
+  nxo_roles:has_role(wf:user(), Role).
 
 set_has_role(Role, IsInRole, _Config, State) ->
   SQL = case IsInRole of
@@ -28,8 +27,7 @@ set_has_role(Role, IsInRole, _Config, State) ->
   {ok, State}.
 
 get_roles(_Config, _State) ->
-  nxo_db:list_query(role_get_roles, [wf:user()]).
+  nxo_roles:all(wf:user()).
 
 clear_all(_Config, State) ->
-  nxo_db:query(role_clear_all, [wf:user()]),
   {ok, State}.

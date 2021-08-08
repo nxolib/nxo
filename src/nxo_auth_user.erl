@@ -35,7 +35,6 @@ id(EmailOrID) ->
 is_ad(UserID) ->
   [UserData] = find(UserID),
   case maps:get(<<"samaccountname">>, UserData, null) of
-    null -> false;
     <<>> -> false;
     _    -> true
   end.

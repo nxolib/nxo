@@ -159,7 +159,7 @@ user_menu(passwd) ->
     false -> menu_item("/password", "Change Password")
   end;
 user_menu(api) ->
-  case nxo_authz:may(api) of
+  case wf:role(api) of
     false -> [];
     true -> menu_item("/api", "API Token Management")
   end;
@@ -168,7 +168,7 @@ user_menu(logout) ->
 
 %% @doc Decide what to show on the admin menu.
 admin_menu_list() ->
-  case nxo_authz:may(admin_something) of
+  case wf:role(admin_something) of
     false -> [];
     true  -> admin_menu()
   end.
@@ -198,7 +198,7 @@ admin_menu_items() ->
   ].
 
 menu_item(Realm, URL, Label) ->
-  case nxo_authz:may(Realm) of
+  case wf:role(Realm) of
     true -> menu_item(URL, Label);
     false -> []
   end.

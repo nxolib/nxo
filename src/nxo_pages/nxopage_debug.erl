@@ -13,5 +13,4 @@ title() ->
   "NXO Debugging".
 
 body() ->
-  ?PRINT(nxo_authz:is(superuser)),
   ?PRINT(wf:session(user_data)).

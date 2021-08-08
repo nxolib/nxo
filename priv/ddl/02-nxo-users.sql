@@ -2,110 +2,128 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 CREATE EXTENSION IF NOT EXISTS hstore;
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- Basic users table.
---
--- user_id is immutable which allows email to change. password is blank for
--- accounts backed by MEEI's AD; for these accounts, samaccountname will have a
--- value (the AD "username").
 CREATE TABLE IF NOT EXISTS nxo_users (
   user_id        UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   email          VARCHAR(128) NOT NULL UNIQUE,
-  password       VARCHAR(64) NOT NULL,
-  phone          VARCHAR(32) NULL,
-  first_name     VARCHAR(64) NULL,
-  last_name      VARCHAR(64) NULL,
-  description    VARCHAR(256) NULL,
-  samaccountname VARCHAR(64) NULL,
-  active         BOOLEAN DEFAULT true
+  password       VARCHAR(64)  NOT NULL,
+  phone          VARCHAR(32)  NOT NULL DEFAULT '',
+  first_name     VARCHAR(64)  NOT NULL DEFAULT '',
+  last_name      VARCHAR(64)  NOT NULL DEFAULT '',
+  description    VARCHAR(256) NOT NULL DEFAULT '',
+  samaccountname VARCHAR(64)  NOT NULL DEFAULT '',
+  active         BOOLEAN NOT NULL DEFAULT true,
+  roles          TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[]
   );
 
-
-
--- Basic groups table.
---
--- Groups are used to authorize users (and could also be considered "roles").
 CREATE TABLE IF NOT EXISTS nxo_groups (
-  group_id    UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  group_name  VARCHAR(128) NOT NULL UNIQUE,
-  group_label VARCHAR(64) NOT NULL,
-  description VARCHAR(256) NULL,
+  group_name  VARCHAR(128) NOT NULL PRIMARY KEY,
+  group_label VARCHAR(64)  NOT NULL UNIQUE,
+  description VARCHAR(256) NOT NULL DEFAULT '',
   global_only BOOLEAN DEFAULT false
   );
 
--- Organization table.
---
--- Information about organizations/affilliations a user might belong to.
--- Uploaded data and authz functios will use organizations to mark data
--- appropriately.
 CREATE TABLE IF NOT EXISTS nxo_orgs (
-org_id      UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-org_name    VARCHAR(128) NOT NULL,
-org_abbrv   VARCHAR(48) NOT NULL UNIQUE,
-description VARCHAR(256) NULL
-);
-
-CREATE INDEX IF NOT EXISTS nxo_orgs_lower_idx
-  ON nxo_orgs ((LOWER(org_abbrv)));
-
-
--- There's a "global" org we use as a default for things like
--- authorizations; here's an easy way to return its UUID.
-INSERT INTO nxo_orgs(org_name, org_abbrv, description)
-  VALUES ('Global Default', 'global', 'Default Organization')
-  ON CONFLICT DO nothing;
-
-
--- User/Group association table.
-CREATE TABLE IF NOT EXISTS nxo_user_groups (
-  user_id  UUID NOT NULL REFERENCES nxo_users(user_id) ON DELETE CASCADE,
-  group_id UUID NOT NULL REFERENCES nxo_groups(group_id) ON DELETE CASCADE,
-  org_id   UUID NULL REFERENCES nxo_orgs(org_id) ON DELETE CASCADE,
-  CONSTRAINT usergrp_constr UNIQUE (user_id, group_id, org_id)
+  org_abbrv   VARCHAR(48)  NOT NULL PRIMARY KEY,
+  org_name    VARCHAR(128) NOT NULL UNIQUE,
+  description VARCHAR(256) NOT NULL DEFAULT ''
   );
 
--- User/Organization association table.
---
--- is_primary notes the primary (or default) group for a user. is_contact
--- indicates that the user should be listed on the organization's contact
--- details page.
-CREATE TABLE IF NOT EXISTS nxo_user_orgs (
-  user_id    UUID NOT NULL REFERENCES nxo_users(user_id) ON DELETE CASCADE,
-  org_id     UUID NOT NULL REFERENCES nxo_orgs(org_id) ON DELETE CASCADE,
-  is_primary BOOLEAN DEFAULT true,
-  is_contact BOOLEAN DEFAULT false,
-  qualifier  VARCHAR(256) NULL,
-  title      VARCHAR(128) NULL,
-  PRIMARY KEY(user_id, org_id)
-);
-
--- Organization contact (address, name) table.
 CREATE TABLE IF NOT EXISTS nxo_org_contact (
-  org_id       UUID PRIMARY KEY REFERENCES nxo_orgs(org_id) ON DELETE CASCADE,
-  address_1    VARCHAR(256) NULL,
-  address_2    VARCHAR(256) NULL,
-  address_3    VARCHAR(256) NULL,
-  city         VARCHAR(128) NULL,
-  state        VARCHAR(128) NULL,
-  country      VARCHAR(128) NULL,
-  postcode     VARCHAR(16) NULL
+  org_abbrv    VARCHAR(48)  PRIMARY KEY REFERENCES nxo_orgs ON DELETE CASCADE,
+  address_1    VARCHAR(256) NOT NULL DEFAULT '',
+  address_2    VARCHAR(256) NOT NULL DEFAULT '',
+  address_3    VARCHAR(256) NOT NULL DEFAULT '',
+  city         VARCHAR(128) NOT NULL DEFAULT '',
+  state        VARCHAR(128) NOT NULL DEFAULT '',
+  country      VARCHAR(128) NOT NULL DEFAULT '',
+  postcode     VARCHAR(16)  NOT NULL DEFAULT ''
 );
 
--- Phone numbers (orgs, users, &c).
-CREATE TABLE IF NOT EXISTS nxo_phones (
-  phone_id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  org_id   UUID NULL REFERENCES nxo_orgs(org_id) ON DELETE CASCADE,
-  user_id  UUID NULL REFERENCES nxo_users(user_id) ON DELETE CASCADE,
-  label    VARCHAR(128) NOT NULL,
-  phone    VARCHAR(128) NOT NULL,
-  CONSTRAINT org_constr  UNIQUE (org_id, label),
-  CONSTRAINT user_constr UNIQUE (user_id, label)
+CREATE TABLE IF NOT EXISTS nxo_org_phone (
+  org_abbrv    VARCHAR(48)  NOT NULL REFERENCES nxo_orgs ON DELETE CASCADE,
+  label        VARCHAR(128) NOT NULL,
+  phone        VARCHAR(128) NOT NULL,
+  CONSTRAINT nxo_org_phone_label UNIQUE(org_abbrv, label)
 );
 
--- authz groups
+CREATE TABLE IF NOT EXISTS nxo_user_orgs (
+  user_id    UUID NOT NULL REFERENCES nxo_users ON DELETE CASCADE,
+  org_abbrv  VARCHAR(48) NOT NULL REFERENCES nxo_orgs ON DELETE CASCADE,
+  is_primary BOOLEAN NOT NULL DEFAULT true,
+  is_contact BOOLEAN NOT NULL DEFAULT false,
+  qualifier  VARCHAR(256) NOT NULL DEFAULT '',
+  title      VARCHAR(128) NOT NULL DEFAULT '',
+  PRIMARY KEY(user_id, org_abbrv)
+);
+
+CREATE TABLE IF NOT EXISTS nxo_user_phone (
+  user_id   UUID NOT NULL REFERENCES nxo_users ON DELETE CASCADE,
+  org_abbrv VARCHAR(48) NOT NULL REFERENCES nxo_orgs ON DELETE CASCADE,
+  label     VARCHAR(128) NOT NULL,
+  phone     VARCHAR(128) NOT NULL,
+  CONSTRAINT nxo_user_phone_label UNIQUE(user_id, org_abbrv, label)
+);
+
 CREATE TABLE IF NOT EXISTS nxo_realms (
-  realm_id    UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  realm       VARCHAR(128) NOT NULL UNIQUE,
-  description VARCHAR(255) NOT NULL,
-  required    BOOLEAN NOT NULL DEFAULT false,
-  group_ids   UUID[] NOT NULL DEFAULT ARRAY[]::UUID[]
+  realm  VARCHAR(128) NOT NULL PRIMARY KEY,
+  groups TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[]
 );
+
+CREATE TABLE IF NOT EXISTS nxo_api_keys (
+  user_id UUID PRIMARY KEY REFERENCES nxo_users(user_id) ON DELETE CASCADE,
+  api_key UUID NOT NULL
+);
+
+
+-- Sufficient groups, orgs, realms, and a seed user to boot the NXO
+-- framework.  Note that the groups and realms defined here should not
+-- be deleted.  The seed user and test organizations can be.
+--
+-- Note also that new groups may be added, perhaps during the runtime.
+-- This allows for dynamic authz (especially when there are multiple
+-- organizations).  New realms may not be added during the runtime
+-- (these are used in the code itself) but one supposes that the
+-- definitions of the existing realms *could* be changed.  No UI is
+-- provided to enact these changes.
+
+INSERT INTO nxo_groups(group_name, group_label, description, global_only)
+  VALUES
+    ('users',          'Site User',             'Default User Group', false),
+    ('administrators', 'Global Administrators', 'All Access',         true),
+    ('usermgmt',       'User Managers',         'User Managers',      false),
+    ('datamgmt',       'Data Managers',         'Data Managers',      false),
+    ('passwd',         'Stale Password',        'Requres PW Change',  true),
+    ('api',            'API Users',             'API Access',         false),
+    ('pending',        'Pending Users',         'Pending Users',      true)
+  ON CONFLICT DO NOTHING;
+
+INSERT INTO nxo_orgs(org_name, org_abbrv, description)
+  VALUES
+    ('Global Default', 'global', 'Default Organization'),
+    ('Ace Corp.',      'ace',    'Ace Test Organization'),
+    ('Acme Co.',       'acme',   'Acme Test Organization')
+  ON CONFLICT DO NOTHING;
+
+INSERT INTO nxo_realms (realm, groups)
+  VALUES
+  ('global::admin_something',
+    '{ "global::administrators", "global::usermgmt", "global::datamgmt" }'),
+  ('global::admin_everything',
+    '{ "global::administrators" }'),
+  ('global::admin_users',
+    '{ "global::administrators", "global::usermgmt" }'),
+  ('global::admin_data',
+    '{ "global::administrators", "global::datamgmt" }'),
+  ('global::api',
+    '{ "global::administrators", "global::api" }')
+ ON CONFLICT DO NOTHING;
+
+
+INSERT INTO nxo_users (email, password, phone, first_name, last_name,
+                       description, active, roles)
+  VALUES
+    ('quux@example.com',
+     '$2a$12$SRBNjPnX167CP/J9t7.S/ep.XZMmfmFTuRKGBOmIRpcbVmWN0vV5O',
+     '504-555-1212', 'Seed', 'User', 'Seed Account', true,
+     '{ "global::administrators", "global::usermgmt", "global::users" }' )
+  ON CONFLICT DO NOTHING;
