@@ -2,8 +2,8 @@
 -include("nxo.hrl").
 -export([
           all/0
+        , all_with_role/1
         , find/1
-        , ids/0
         , delete_group/1
         , add_to_group/2
         , remove_from_group/2
@@ -11,18 +11,21 @@
 
 %% @doc Return all groups in the group table.
 all() ->
-  nxo_db:q(group_all_groups, []).
+  all_with_role("global").
+
+all_with_role(OrgAbbrv) ->
+  [ generate_role(G, OrgAbbrv) || G <- nxo_db:q(group_all_groups) ].
+
+generate_role(G, OrgAbbrv) ->
+  GroupName = maps:get(<<"group_name">>, G),
+  GroupBin = wf:to_binary(GroupName),
+  OrgBin = wf:to_binary(OrgAbbrv),
+  Role = << OrgBin/binary, "::", GroupBin/binary >>,
+  maps:put(<<"role">>, Role, G).
 
 %% @doc Find a group by name.
 find(Name) ->
   nxo_db:q(group_find, [Name]).
-
-%% @doc Return all the group IDs as strings.
-ids() ->
-  lists:foldl(fun(G, Acc) ->
-                  [binary_to_list(maps:get(<<"group_id">>, G)) | Acc]
-              end, [], all()).
-
 
 %% @doc Add a UserID to group.
 add_to_group(UserID, GroupName) ->

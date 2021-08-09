@@ -20,7 +20,7 @@ event(login) ->
   end;
 
 event(unmask) ->
-  case nxo_auth_user:find(wf:session(pre_masquerade_user)) of
+  case nxo_user:find(wf:session(pre_masquerade_user)) of
     [UserData] -> set_user(UserData),
                   wf:session(pre_masquerade_user, undefined),
                   wf:redirect("/");
@@ -69,7 +69,7 @@ display_name(UserData) ->
 -spec login(User :: string(), Pass :: string()) -> {true, map()} | false.
 
 login(User, Pass) ->
-  case (is_user_active(nxo_auth_user:find(User))) of
+  case (is_user_active(nxo_user:find(User))) of
     {true, UserData} -> authenticate_user(UserData, Pass);
     _ -> false
   end.

@@ -16,22 +16,24 @@
 all(UserID) ->
   nxo_db:q(all_roles, [UserID]).
 
+has_role(undefined, _) ->
+  false;  %% wf:user() returns undefined when not logged in.
 has_role(UserID, Role) ->
   RoleSpec = wf:to_binary(Role),
   case binary:matches(RoleSpec, <<"::">>) of
     [] ->
       has_role(UserID, ?GLOBAL_ORG, Role);
     _ ->
-      %nxo_db:q(has_role, [UserID, [RoleBin]])
       lookup({UserID, RoleSpec})
   end.
 
+has_role(undefined, _, _) ->
+  false;
 has_role(UserID, Org, Role) ->
   RoleBin = wf:to_binary(Role),
   OrgBin = wf:to_binary(Org),
   RoleSpec = << OrgBin/binary, "::", RoleBin/binary >>,
   lookup({UserID, RoleSpec}).
-  %nxo_db:q(has_role, [UserID, [RoleSpec]]).
 
 %%%%%%%%%%%%%%%%%%%%%%%
 %% CACHING FUNCTIONS %%

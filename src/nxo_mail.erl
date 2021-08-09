@@ -37,7 +37,7 @@ send_to_id(TemplateFile, ID) ->
 %% @doc Like send/3 but pass an ID instead of an email address.
 -spec send_to_id(atom(), uuid:uuid_string(), map()) -> ok.
 send_to_id(TemplateFile, ID, Params) ->
-  [UserData] = nxo_auth_user:find(ID),
+  [UserData] = nxo_user:find(ID),
   send(TemplateFile, maps:get(<<"email">>, UserData), Params).
 
 -spec send_to_admin(atom()) -> ok.

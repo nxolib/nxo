@@ -1,7 +1,7 @@
--module(nxo_auth_user).
+-module(nxo_user).
 -include("nxo.hrl").
 -export([
-          all_users/0
+          all/0
         , find/1
         , id/1
         , toggle_active_flag/2
@@ -10,20 +10,15 @@
         , change_password/2
         ]).
 
--type user_data() :: map().
-
 %% @doc Return all users in the users table.
--spec all_users() -> [user_data()].
-all_users() ->
+all() ->
   nxo_db:q(user_all).
 
 %% @doc Find a user by email or user_id or samaccountname.
--spec find(EmailOrID :: string()) -> [user_data()] | [].
 find(EmailOrID) ->
   nxo_db:q(user_find, [EmailOrID]).
 
 %% @doc Find a user_id by email or user_id or samacountname.
--spec id(EmailOrID :: string()) -> binary() | undefined.
 id(EmailOrID) ->
   case find(EmailOrID) of
     [User] -> maps:get(<<"user_id">>, User);
@@ -31,7 +26,6 @@ id(EmailOrID) ->
   end.
 
 %% @doc Determine if a user is a local or AD account.
--spec is_ad(binary()) -> boolean().
 is_ad(UserID) ->
   [UserData] = find(UserID),
   case maps:get(<<"samaccountname">>, UserData, null) of
@@ -40,7 +34,6 @@ is_ad(UserID) ->
   end.
 
 %% @doc Toggle a user active flag on (true) or off (false).
--spec toggle_active_flag(string(), boolean()) -> binary().
 toggle_active_flag(ID, Flag) when Flag == true;
                                   Flag == false ->
   nxo_db:q(user_active_flag, [ID, Flag]),
@@ -52,7 +45,6 @@ toggle_active_flag(_, _) ->
   error(invalid_activate_flag).
 
 %% @doc Possibly remove user from pending state.
--spec maybe_confirm_account(string()) -> ok.
 maybe_confirm_account(ID) ->
   case nxo_group:remove_from_group(ID, pending) of
     {ok, 0} -> ok;
@@ -60,7 +52,6 @@ maybe_confirm_account(ID) ->
   end.
 
 %% @doc Change user password.
--spec change_password(User :: string(), PlainPW :: string()) -> ok | failed.
 change_password(User, PlainPW) ->
   HashedPW = erlpass:hash(PlainPW),
   case nxo_db:q(user_set_password, [User, HashedPW], raw) of

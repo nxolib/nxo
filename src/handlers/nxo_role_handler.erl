@@ -1,4 +1,5 @@
 -module(nxo_role_handler).
+-include("nxo.hrl").
 -behaviour(role_handler).
 -export([
           init/2

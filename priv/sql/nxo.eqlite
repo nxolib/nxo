@@ -71,7 +71,7 @@ WHERE group_name = $1
 -- FROM nxo_groups
 -- WHERE group_name = $1;
 
--- :insert_realm
+-- :insert_realm (refactored)
 INSERT INTO nxo_realms (realm, description, required, group_ids)
 VALUES ($1, $2, $3, $4)
 ON CONFLICT(realm)
@@ -143,53 +143,13 @@ SELECT CASE WHEN COUNT(*) > 0 THEN true
        END
 FROM nxo_users
 WHERE user_id = $1::UUID
-  AND roles && $2
-   OR roles && (SELECT groups FROM nxo_realms WHERE realm = $2[1]);
+  AND (roles && $2
+   OR roles && (SELECT groups FROM nxo_realms WHERE realm = $2[1]));
 
 -- :all_roles (refactored)
 SELECT roles
 FROM nxo_users
 WHERE user_id = $1::uuid;
-
-
--- -- :role_get_has_role
--- SELECT COUNT(*)
--- FROM nxo_user_groups
---   JOIN nxo_groups USING (group_id)
---   JOIN nxo_users USING (user_id)
--- WHERE nxo_users.user_id = $1::uuid
---       AND
---       -- straight group name match
---       (lower(group_name) = lower($2)
---        OR
---        -- user is a member of the groups associated with the realm
---       (SELECT group_ids && ARRAY_AGG((SELECT group_id
---                                         FROM nxo_user_groups
---                                         JOIN nxo_users USING(user_id)
---                                        WHERE nxo_users.user_id = $1::uuid))
---          FROM nxo_realms
---         WHERE realm = $2
---         GROUP BY group_ids));
-
-
--- -- :role_get_roles
--- SELECT group_name
--- FROM nxo_user_groups
--- JOIN nxo_groups USING (group_id)
--- WHERE user_id = $1
-
--- -- :role_set_has_role
--- INSERT INTO nxo_user_groups (user_id, group_id)
--- VALUES ($1, (SELECT group_id
---              FROM nxo_groups
---              WHERE LOWER(group_name) = LOWER($2)))
-
--- -- :role_unset_has_role
--- DELETE FROM nxo_user_groups
--- WHERE user_id = $1
---   AND group_id = (SELECT group_id
---                   FROM nxo_groups
---                   WHERE LOWER(group_name) = LOWER($2))
 
 
 -- :settings_get_group
@@ -238,26 +198,22 @@ DO UPDATE SET email = $2,
           WHERE nxo_users.user_id = $1
 RETURNING user_id
 
--- :user_all
+-- :user_all (refactored)
 SELECT
   u.*,
-  o.org_id, o.org_name, o.org_abbrv, o.description,
+  o.org_name, o.org_abbrv, o.description,
   uo.is_primary, uo.is_contact, uo.title,
-  (SELECT COUNT(*)
-   FROM nxo_user_groups ug
-   WHERE ug.user_id = u.user_id
-     AND ug.group_id = (SELECT group_id('pending'))) > 0 AS is_pending
+  (SELECT '{ "global::pending" }' @> roles) AS is_pending
 
 FROM nxo_users u
 LEFT OUTER JOIN nxo_user_orgs uo ON u.user_id = uo.user_id
                                     AND  uo.is_primary = true
-LEFT OUTER JOIN nxo_orgs o USING (org_id)
+LEFT OUTER JOIN nxo_orgs o USING (org_abbrv)
 ORDER BY is_pending DESC, u.last_name, u.first_name
 
 
 -- :user_delete
-DELETE FROM nxo_users
-WHERE user_id::text = $1
+DELETE FROM nxo_users WHERE user_id::text = $1
 
 -- :user_find
 SELECT
@@ -272,53 +228,15 @@ SELECT
   u.samaccountname,
   u.active,
   u.roles,
-  -- o.org_name,
-  -- o.org_abbrv,
-  -- o.description AS org_description,
-  -- uo.is_primary,
-  -- uo.is_contact,
-  -- uo.title,
   (SELECT '{ "global::pending" }' @> roles) AS is_pending
 FROM
   nxo_users u
-  -- nxo_orgs o,
-  -- nxo_user_orgs uo
 WHERE
   ($1::TEXT IS NOT NULL AND $1::TEXT !='')
   AND (LOWER(email) = LOWER($1)
       OR u.user_id::TEXT = $1
       OR LOWER(samaccountname) = LOWER($1))
-   -- AND u.user_id = uo.user_id
-   -- AND uo.is_primary = true
-   -- AND uo.org_abbrv = o.org_abbrv;
 
-
-
-
--- SELECT
---   u.*,
---   o.org_id, o.org_name, o.org_abbrv, o.description as org_description,
---   uo.is_primary, uo.is_contact, uo.title,
---   ARRAY(SELECT group_id
---         FROM nxo_user_groups g
---         WHERE g.user_id = u.user_id AND
---           (g.org_id = o.org_id or g.org_id = (SELECT global_org_id())))
---           AS groups,
---   (SELECT COUNT(*)
---    FROM nxo_user_groups ug
---    WHERE ug.user_id = u.user_id
---      AND ug.group_id = (SELECT group_id('pending'))) > 0 AS is_pending
-
-
--- FROM nxo_users u
--- LEFT OUTER JOIN nxo_user_orgs uo ON u.user_id = uo.user_id
---                                     AND  uo.is_primary = true
--- LEFT OUTER JOIN nxo_orgs o USING (org_id)
--- WHERE
---    ($1::TEXT IS NOT NULL AND $1::TEXT != '') AND
---    (LOWER(email) = LOWER($1)
---      OR u.user_id::text = $1
---      OR LOWER(samaccountname) = LOWER($1))
 
 -- :user_get_password
 SELECT password

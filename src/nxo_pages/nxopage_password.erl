@@ -12,7 +12,7 @@
 -postback_security(authenticated).
 
 main() ->
-  case nxo_auth_user:is_ad(wf:user()) of
+  case nxo_user:is_ad(wf:user()) of
     true  -> wf:redirect("/");
     false -> #template{ file=nxo:template("password.html") }
   end.
@@ -59,7 +59,7 @@ body() ->
   ].
 
 event(_) ->
-  case nxo_auth_user:change_password(wf:user(), wf:q(new_password_1)) of
+  case nxo_user:change_password(wf:user(), wf:q(new_password_1)) of
     ok ->
       wf:update(result, #span{class="p-3 mb-2 bg-success text-white",
                               text="Password changed."});

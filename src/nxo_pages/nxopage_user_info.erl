@@ -7,7 +7,7 @@
 -security({groups, [administrators, usermgmt]}).
 
 open_panel(ID) ->
-  [UserData] = nxo_auth_user:find(ID),
+  [UserData] = nxo_user:find(ID),
   Data = #{ user => UserData },
   Button = #button{ class="btn btn-primary",
                     id=modal_cancel,

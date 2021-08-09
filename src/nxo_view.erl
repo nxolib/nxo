@@ -154,7 +154,7 @@ user_menu(unmask) ->
     _ -> menu_item("/login/unmask", "Unmask")
   end;
 user_menu(passwd) ->
-  case nxo_auth_user:is_ad(wf:user()) of
+  case nxo_user:is_ad(wf:user()) of
     true  -> [];
     false -> menu_item("/password", "Change Password")
   end;

@@ -36,6 +36,7 @@
         , user/0
         , is_authenticated/0
         , consult_file/3
+        , random_password/1
         ]).
 
 -define(EVENT, nxo_event_handler).
@@ -247,6 +248,14 @@ consult_file(File, SubDir, Ext) ->
       end
   end.
 
+
+%% Generate a random-ish password of length Len.
+random_password(Len) ->
+    Chrs = list_to_tuple("ABCDEFGHIJKLMNOPQRSTUVWXYZ" ++
+                           "abcdefghijklmnopqrstuvwxyz0123456789"),
+    ChrsSize = size(Chrs),
+    F = fun(_, R) -> [element(rand:uniform(ChrsSize), Chrs) | R] end,
+    lists:foldl(F, "", lists:seq(1, Len)).
 
 
 %%%%%%%%%%%%%%%%%
