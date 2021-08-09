@@ -23,33 +23,33 @@ body() ->
 event(add) ->
   wf:redirect("/org_form");
 
-event({edit, ID}) ->
-  wf:redirect("/org_form/" ++ ID);
-event({info, ID}) ->
-  nxopage_org_info:open_panel(ID);
-event({delete, ID}) ->
+event({edit, Abbrv}) ->
+  wf:redirect("/org_form/" ++ Abbrv);
+event({info, Abbrv}) ->
+  nxopage_org_info:open_panel(Abbrv);
+event({delete, Abbrv}) ->
   wf:wire(#confirm{ text="Do you want to continue?",
-                    postback={delete_confirmed, ID} });
-event({delete_confirmed, ID}) ->
-  nxo_org:delete(ID),
+                    postback={delete_confirmed, Abbrv} });
+event({delete_confirmed, Abbrv}) ->
+  nxo_org:delete(Abbrv),
   wf:update(org_body, body()).
 
 button(add) ->
   #button{postback=add,
           body=nxo:fa(plus),
           class=?btn_success};
-button({edit, ID}) ->
-  #button{postback={edit, ID},
+button({edit, Abbrv}) ->
+  #button{postback={edit, Abbrv},
           body=nxo:fa(edit),
           class=?btn_primary};
-button({info, ID}) ->
-  #button{postback={info, ID},
+button({info, Abbrv}) ->
+  #button{postback={info, Abbrv},
           body=nxo:fa("info-circle"),
           class=?btn_primary};
-button({delete, ID}) ->
+button({delete, Abbrv}) ->
   case wf:role(administrators) of
     false -> [];
     true  -> #button{body=nxo:fa(ban),
                      class=?btn_danger,
-                     postback={delete, ID}}
+                     postback={delete, Abbrv}}
   end.

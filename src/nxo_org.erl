@@ -6,9 +6,7 @@
         , all/0
         , delete/1
         , upsert/2
-%        , format/1
         ]).
-
 
 %% @doc Return organization details.
 -spec find(string() | binary()) -> [#{binary() := binary() | atom()}].
@@ -31,15 +29,3 @@ delete(OrgAbbrv) ->
 upsert(OrgDetails, OrgContact) ->
   nxo_db:cascading_update([ {org_add, OrgDetails},
                             {org_contact_add, OrgContact} ]).
-
-%% format(ID) ->
-%%   format_org(find(ID)).
-
-%% format_org([Org]) when is_map(Org) ->
-%%   #template{ file=nxo:template("format_org.html") };
-
-%% format_org(_) ->
-%%   [].
-
-%% org_name(ID) ->
-%%   nxo_obj:detail(fun nxo_org:find/1, ID, org_name).
