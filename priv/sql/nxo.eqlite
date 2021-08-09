@@ -31,51 +31,45 @@ WHERE LOWER(nxo_orgs.org_abbrv) = LOWER($2)
   AND nxo_user_groups.group_id IN
       (SELECT group_id FROM nxo_groups WHERE group_name = 'api')
 
--- :check_dup
+-- :check_dup (refactored)
 SELECT check_dup($1, $2, $3)
 
--- :check_dup_with_id
+-- :check_dup_with_id (refactored)
 SELECT check_dup($1, $2, $3, $4, $5)
 
--- :group_add
+-- :group_add (refactored)
 INSERT INTO nxo_groups
-  (group_id, group_name, group_label, description, global_only)
-VALUES ($1, $2, $3, $4, $5)
-ON CONFLICT(group_id)
-DO UPDATE SET group_name = $2,
-              group_label = $3,
-              description = $4,
-              global_only = $5
-          WHERE nxo_groups.group_id = $1
-RETURNING group_id
+  (group_name, group_label, description, global_only)
+VALUES ($1, $2, $3, $4)
+ON CONFLICT(group_name)
+DO UPDATE SET group_label = $2,
+              description = $3,
+              global_only = $4
+          WHERE nxo_groups.group_name = $1
+RETURNING group_name
 
--- :group_all_groups
+-- :group_all_groups (refactored)
 SELECT
-  nxo_groups.group_id,
   group_name,
   group_label,
   description,
   global_only
-
 FROM
   nxo_groups
-
 ORDER BY group_label;
 
--- :group_delete
-DELETE
-FROM nxo_groups
-WHERE group_id::text = $1
+-- :group_delete (refactored)
+DELETE FROM nxo_groups WHERE group_name = $1
 
--- :group_find
+-- :group_find (refactored)
 SELECT *
 FROM nxo_groups
-WHERE group_name = $1 OR group_id::text = $1
+WHERE group_name = $1
 
--- :group_id
-SELECT group_id
-FROM nxo_groups
-WHERE group_name = $1;
+-- -- :group_id
+-- SELECT group_id
+-- FROM nxo_groups
+-- WHERE group_name = $1;
 
 -- :insert_realm
 INSERT INTO nxo_realms (realm, description, required, group_ids)

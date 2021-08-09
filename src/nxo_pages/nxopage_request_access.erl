@@ -57,7 +57,7 @@ process_request() ->
   %%                  [UID | nxo_datamap:apply(new_user_project_details)]),
 
   %% add the user to the pending group
-  nxo_auth_group:add_to_group(UID, pending).
+  nxo_group:add_to_group(UID, pending).
 
   %% XXX: This causes a cowboy process crash?
   %% notify admins of account request

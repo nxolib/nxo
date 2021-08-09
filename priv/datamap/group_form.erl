@@ -1,4 +1,4 @@
 {group_name, string, []}.
 {group_label, string, []}.
-{description, string, []}.
+{description, emptystring, []}.
 {global_only, boolean, []}.

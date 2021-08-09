@@ -67,9 +67,9 @@ update_groups(UID, OID, GIDs) ->
 group_form() ->
   Data = #{orgs => nxo_org:all(),
            user => wf:state(obj),
-           groups => nxo_auth_group:all()},
+           groups => nxo_group:all()},
   #template{ text=nxo_template:render(user_group, Data) }.
 
 % returns a list of group_ids that have their checkboxes checked.
 selected_groups() ->
-  lists:filter(fun(G) -> wf:q(G) == G end, nxo_auth_group:ids()).
+  lists:filter(fun(G) -> wf:q(G) == G end, nxo_group:ids()).
