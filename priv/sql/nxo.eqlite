@@ -88,22 +88,21 @@ DO UPDATE SET
   WHERE nxo_realms.realm = $1
 RETURNING realm_id;
 
--- :org_add
-INSERT INTO nxo_orgs (org_id, org_name, org_abbrv)
-VALUES ($1, $2, $3)
-ON CONFLICT(org_id)
-DO UPDATE SET org_name = $2,
-              org_abbrv = $3
-          WHERE nxo_orgs.org_id = $1
-RETURNING org_id
+-- :org_add (refactored)
+INSERT INTO nxo_orgs (org_name, org_abbrv)
+VALUES ($1, $2)
+ON CONFLICT(org_abbrv)
+DO UPDATE SET org_name = $1
+          WHERE nxo_orgs.org_abbrv = $2
+RETURNING org_abbrv
 
 -- :org_add_user
 INSERT INTO nxo_user_orgs (user_id, org_id, is_primary, is_contact, title)
 VALUES ($1, $2, $3, $4, $5)
 
--- :org_contact_add
+-- :org_contact_add (refactored)
 INSERT INTO nxo_org_contact (
-         org_id
+         org_abbrv
        , address_1
        , address_2
        , address_3
@@ -112,7 +111,7 @@ INSERT INTO nxo_org_contact (
        , country
        , postcode)
 VALUES($1, $2, $3, $4, $5, $6, $7, $8)
-ON CONFLICT(org_id)
+ON CONFLICT(org_abbrv)
 DO UPDATE SET address_1 = $2,
               address_2 = $3,
               address_3 = $4,
@@ -120,22 +119,20 @@ DO UPDATE SET address_1 = $2,
               state = $6,
               country = $7,
               postcode = $8
-          WHERE nxo_org_contact.org_id = $1
-RETURNING org_id
+          WHERE nxo_org_contact.org_abbrv = $1
+RETURNING org_abbrv
 
 -- :org_delete
-DELETE FROM nxo_orgs
-WHERE org_id::text = $1
+DELETE FROM nxo_orgs WHERE org_abbrv = $1
 
--- :org_find
+-- :org_find (refactored)
 SELECT *
 FROM nxo_orgs
-LEFT JOIN nxo_org_contact USING (org_id)
+LEFT JOIN nxo_org_contact USING (org_abbrv)
 WHERE LOWER(org_name) = LOWER($1)
    OR LOWER(org_abbrv) = LOWER($1)
-   OR org_id::text = $1
 
--- :all_orgs
+-- :all_orgs (refactored)
 SELECT *
 FROM nxo_orgs
 ORDER BY org_name;
@@ -146,7 +143,7 @@ FROM nxo_user_groups
 WHERE group_id = pending_group()
 
 -- ROLES
--- :has_role
+-- :has_role (refactored)
 SELECT CASE WHEN COUNT(*) > 0 THEN true
             ELSE false
        END
@@ -155,7 +152,7 @@ WHERE user_id = $1::UUID
   AND roles && $2
    OR roles && (SELECT groups FROM nxo_realms WHERE realm = $2[1]);
 
--- :all_roles
+-- :all_roles (refactored)
 SELECT roles
 FROM nxo_users
 WHERE user_id = $1::uuid;

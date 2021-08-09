@@ -52,10 +52,11 @@ apply_map([{FormField, Type, WashFns}|T], Params, Data) ->
 
 default_wash_options(Type, WashFns) ->
   case Type of
-    string  -> [trim, emptystr | WashFns];
-    passwd  -> [emptystr, passwd | WashFns];
-    boolean -> [bool | WashFns];
-    _       -> WashFns
+    string      -> [trim, emptystr | WashFns];
+    emptystring -> [trim | WashFns ];
+    passwd      -> [emptystr, passwd | WashFns];
+    boolean     -> [bool | WashFns];
+    _           -> WashFns
   end.
 wash({M, F}, Val) ->
   apply(M, F, [Val]);
