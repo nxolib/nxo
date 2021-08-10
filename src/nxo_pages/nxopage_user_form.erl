@@ -122,4 +122,4 @@ org_form(OrgAbbrv, UserID) ->
                              non_global_groups => Groups }),
   Stanza = #template{ text=nxo_template:pretty_render(user_org_form, Data) },
   wf:replace(new_org_dropdown, dropdown({additional_orgs, UserID})),
-  wf:insert_top(org_forms, Stanza).
+  wf:insert_bottom(org_forms, Stanza).
