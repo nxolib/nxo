@@ -182,11 +182,11 @@ SET active = $2
 WHERE user_id::text = $1
 RETURNING user_id
 
--- :user_add
+-- :user_add (refactored)
 INSERT INTO nxo_users
   (user_id, email, phone, first_name, last_name,
-   description, active, samaccountname, password)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+   description, active, samaccountname, password, roles)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 ON CONFLICT(user_id)
 DO UPDATE SET email = $2,
               phone = $3,
@@ -194,9 +194,27 @@ DO UPDATE SET email = $2,
               last_name = $5,
               description = $6,
               active = $7,
-              password = $9
+              password = $9,
+              roles = $10
           WHERE nxo_users.user_id = $1
 RETURNING user_id
+
+-- :user_set_roles (refactored)
+UPDATE nxo_users
+SET roles = $2
+WHERE user_id::TEXT = $1
+RETURNING roles;
+
+-- :user_add_org (refactored)
+INSERT INTO nxo_user_orgs (user_id, org_abbrv, is_contact, title)
+VALUES ($1, $2, $3, $4)
+ON CONFLICT (user_id, org_abbrv)
+DO UPDATE SET is_contact = $3, title = $4
+WHERE nxo_user_orgs.user_id = $1 AND nxo_user_orgs.org_abbrv = $2;
+
+-- :user_delete_org (refactored)
+DELETE FROM nxo_user_orgs
+WHERE user_id = $1 AND org_abbrv = $2;
 
 -- :user_all (refactored)
 SELECT
@@ -266,57 +284,6 @@ DO UPDATE SET is_contact = $3,
           WHERE nxo_user_orgs.user_id = $1
             and nxo_user_orgs.org_id = $2
 RETURNING user_id, org_id
-
--- :user_org_groups
-WITH
-del AS (                        -- delete existing groups
-  DELETE FROM nxo_user_groups
-  WHERE user_id = $1::UUID AND
-    (org_id = $2::UUID or org_id = (SELECT global_org_id()))
-  RETURNING *
-),
-
-raw AS (                        -- unpack parameter arrays
-  SELECT
-    UNNEST($3::UUID[]) AS user_id,
-    UNNEST($4::UUID[]) AS org_id,
-    UNNEST($5::UUID[]) AS group_id
-),
-
-globals AS (                    -- account for global grps
-  SELECT
-    group_id,
-
-    COALESCE(
-      (SELECT DISTINCT user_id FROM del),  -- [*] See note below.
-      (SELECT DISTINCT user_id FROM raw)
-    ) AS user_id,
-
-    CASE (SELECT global_only
-          FROM nxo_groups
-          WHERE nxo_groups.group_id = raw.group_id)
-      WHEN true THEN (SELECT global_org_id())
-      ELSE raw.org_id
-    END AS org_id
-
-  FROM raw
-)
-
-INSERT INTO nxo_user_groups (user_id, org_id, group_id)
-SELECT user_id, org_id, group_id FROM globals;
-
-/*
-
-   About that COALESCE() ...
-
-   CTEs execute within the same "snapshot" but the order in which the
-   statements are executed is not well defined.  One can force the
-   order by using the results of a CTE in a subsequent query.  Here we
-   *need* the DELETE to happen before the INSERT INTO otherwise we
-   bump up against the unique constraint.
-
-*/
-
 
 -- :user_set_password
 UPDATE nxo_users

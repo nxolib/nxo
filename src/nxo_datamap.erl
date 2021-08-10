@@ -42,10 +42,11 @@ apply_map(MapSpec) ->
 apply_map([], _Params, Data) ->
   lists:reverse(Data);
 apply_map([{FormField, Type, WashFns}|T], Params, Data) ->
-  RawValue = case is_map(Params) of
-               true ->  maps:get(wf:to_list(FormField), Params, []);
-               false -> wf:q(FormField)
-             end,
+  RawValue =
+    case is_map(Params) of
+      true ->  maps:get(wf:to_list(FormField), Params, []);
+      false -> wf:q(FormField)
+    end,
   AllWashFns = default_wash_options(Type, WashFns),
   Value = lists:foldl(fun wash/2, RawValue, AllWashFns),
   apply_map(T, Params, [Value | Data]).

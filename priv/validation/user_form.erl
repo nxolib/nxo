@@ -7,6 +7,4 @@
 
 {phone, [phone]}.
 
-{org_id, [required]}.
-
 {password, [required]}.

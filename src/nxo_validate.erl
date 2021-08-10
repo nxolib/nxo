@@ -100,9 +100,7 @@ validate(V, {nodup, Table, Column}, _Params) ->
 validate(V, {nodup, Table, Column, IDColumn, IDKey}, Params) ->
   case maps:get(IDKey, Params, not_specified) of
     not_specified -> validate(V, {nodup, Table, Column}, Params);
-    ID ->
-      ?PRINT({Table, Column, V, IDColumn, ID}),
-      not nxo_db:check_dup(Table, Column, V, IDColumn, ID)
+    ID -> not nxo_db:check_dup(Table, Column, V, IDColumn, ID)
   end;
 
 %% match

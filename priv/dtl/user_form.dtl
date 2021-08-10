@@ -76,10 +76,10 @@
     <label for="active">Account Active</label>
     <select class="custom-select wfid_active"
             id="active">
-      <option value="true" {% if active %}selected{% endif %}>
+      <option value="true" {% if active or new_user %}selected{% endif %}>
         Yes
       </option>
-      <option value="false" {% if not active %}selected{% endif %}>
+      <option value="false" {% if not active  and not new_user%}selected{% endif %}>
         No
       </option>
     </select>
@@ -104,7 +104,7 @@
                value="{{ g.role }}"
                {% if g.role in roles %}checked{% endif %}
                {% if g.role == "global::users" %}checked disabled="disabled"{% endif %}
-               class="custom-control-input checkbox wfid_{{g.role}} wfid_global_group" />
+               class="custom-control-input checkbox wfid_{{g.role}} wfid_global_roles" />
         <label class="custom-control-label"
                for="{{ g.group_name }}">{{ g.description }}
           {% if g.global_only %}<sup>*</sup>{% endif %}</label>

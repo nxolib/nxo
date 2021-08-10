@@ -40,10 +40,10 @@
               <div class="custom-control custom-checkbox mb-2 ml-4">
                 <input type="checkbox"
                        id="{{ org.abbrv }}_{{ g.group_name }}"
-                       value="{{ g.role }} }}"
+                       value="{{ g.role }}"
                        {% if g.role in roles %}checked{% endif %}
                        {% if "::users" in g.role %}checked disabled="disabled"{% endif %}
-                       class="custom-control-input checkbox wfid_{{ g.role }}_{{ org_abbrv }} wfid_{{ org.abbrv }}_group" />
+                       class="custom-control-input checkbox wfid_{{ g.role }}_{{ org.org_abbrv }} wfid_{{ org.org_abbrv }}_role" />
                 <label class="custom-control-label"
                        for="{{ org.abbrv}}_{{ g.group_name }}">{{ g.description }}</label>
               </div>
