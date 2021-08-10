@@ -1,0 +1,57 @@
+<div class="mt-2">
+  <div class="card">
+    <div class="card-body">
+      <h5 class="card-title">{{ org.org_name }}</h5>
+      <input type="hidden"
+             value="{{ org.org_abbrv }}"
+             class="wfid_selected_new_org wfid_{{ org.org_abbrv }}" />
+
+      <div class="form-group">
+        <label for="title">Title</label>
+        <input type="text"
+               value="{{ title }}"
+               class="form-control wfid_{{ org.org_abbrv }}_title"
+               id="title" />
+        <small class="form-text text-muted">
+          The title this user holds in this organization.
+        </small>
+      </div>
+
+      <div class="form-group">
+        <label for="is_contact">Organizational Contact</label>
+        <select class="custom-select wfid_{{ org.org_abbrv }}_is_contact"
+                id="is_contact">
+          <option value="true" {% if is_contact %}selected{% endif %}>
+            Yes
+          </option>
+          <option value="false" {% if not is_contact %}selected{% endif %}>
+            No
+          </option>
+        </select>
+        <small class="form-text text-muted">
+          If <i>yes</i> this user will be listed on the oranizational
+          contact page.
+        </small>
+
+        <div class="form-group pt-2">
+          <label for="org-groups">Group Membership</label>
+          <div class="custom-control custom-checkbox mb-2">
+            {% for g in non_global_groups %}
+              <div class="custom-control custom-checkbox mb-2 ml-4">
+                <input type="checkbox"
+                       id="{{ org.abbrv }}_{{ g.group_name }}"
+                       value="{{ g.role }} }}"
+                       {% if g.role in roles %}checked{% endif %}
+                       {% if "::users" in g.role %}checked disabled="disabled"{% endif %}
+                       class="custom-control-input checkbox wfid_{{ g.role }}_{{ org_abbrv }} wfid_{{ org.abbrv }}_group" />
+                <label class="custom-control-label"
+                       for="{{ org.abbrv}}_{{ g.group_name }}">{{ g.description }}</label>
+              </div>
+              {% endfor %}
+          </div>
+        </div>
+
+
+    </div>
+  </div>
+</div>

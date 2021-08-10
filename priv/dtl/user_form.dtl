@@ -102,8 +102,8 @@
         <input type="checkbox"
                id="{{ g.group_name }}"
                value="{{ g.role }}"
-               {% if (g.role in roles) or
-               (g.role == "global::users") %}checked{% endif %}
+               {% if g.role in roles %}checked{% endif %}
+               {% if g.role == "global::users" %}checked disabled="disabled"{% endif %}
                class="custom-control-input checkbox wfid_{{g.role}} wfid_global_group" />
         <label class="custom-control-label"
                for="{{ g.group_name }}">{{ g.description }}
@@ -111,6 +111,14 @@
       </div>
     {% endfor %}
   </div>
+
+  <div class="form-group wfid_org_forms"></div>
+
+  <div class="form-group wfid_new_org">
+    <label for="new_org">Additional Organization</label>
+    [[[page:dropdown({additional_orgs, "{{ user_id }}"})]]]
+  </div>
+
 
   [[[page:button({submit, "{{ user_id }}"})]]]
 

@@ -14,7 +14,13 @@ all() ->
   all_with_role("global").
 
 all_with_role(OrgAbbrv) ->
-  [ generate_role(G, OrgAbbrv) || G <- nxo_db:q(group_all_groups) ].
+  Groups = [ generate_role(G, OrgAbbrv) || G <- nxo_db:q(group_all_groups) ],
+  %% if org is global, all groups; if not, only the non-global_only groups.
+  lists:filter(fun(G) ->
+                   wf:to_list(OrgAbbrv) == "global"
+                     orelse (wf:to_list(OrgAbbrv) =/= "global" andalso
+                             not maps:get(<<"global_only">>, G))
+               end, Groups).
 
 generate_role(G, OrgAbbrv) ->
   GroupName = maps:get(<<"group_name">>, G),

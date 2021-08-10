@@ -228,7 +228,11 @@ SELECT
   u.samaccountname,
   u.active,
   u.roles,
-  (SELECT '{ "global::pending" }' @> roles) AS is_pending
+  (SELECT '{ "global::pending" }' @> roles) AS is_pending,
+  '{ "global" }' ||
+     ARRAY_REMOVE(ARRAY_AGG((SELECT org_abbrv
+                             FROM nxo_user_orgs uo
+                             WHERE u.user_id = uo.user_id)), NULL) AS orgs
 FROM
   nxo_users u
 WHERE
@@ -236,6 +240,8 @@ WHERE
   AND (LOWER(email) = LOWER($1)
       OR u.user_id::TEXT = $1
       OR LOWER(samaccountname) = LOWER($1))
+GROUP BY u.user_id, u.email, u.password, u.phone, u.first_name,
+         u.last_name, u.description, u.samaccountname, u.active, u.roles;
 
 
 -- :user_get_password

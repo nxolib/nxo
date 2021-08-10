@@ -51,7 +51,6 @@ CREATE TABLE IF NOT EXISTS nxo_user_orgs (
   org_abbrv  VARCHAR(48) NOT NULL REFERENCES nxo_orgs ON DELETE CASCADE,
   is_primary BOOLEAN NOT NULL DEFAULT true,
   is_contact BOOLEAN NOT NULL DEFAULT false,
-  qualifier  VARCHAR(256) NOT NULL DEFAULT '', -- what on earth is this?
   title      VARCHAR(128) NOT NULL DEFAULT '',
   PRIMARY KEY(user_id, org_abbrv)
 );

@@ -6,10 +6,14 @@
         , body/0
         , event/1
         , button/1
+        , dropdown/1
         ]).
 
 -security({groups, [administrators, usermgmt]}).
 -postback_security({groups, [administrators, usermgmt]}).
+
+-define(SELECTED_ORGS_DEFAULT,
+        wf:state_default(selected_orgs, [])).
 
 main() ->
   #template{ file=nxo:template("user_form.html") }.
@@ -23,11 +27,29 @@ body() ->
            UserID -> hd(nxo_user:find(UserID))
          end,
   Data = maps:merge(User, #{ all_groups => nxo_group:all() }),
-  ?PRINT(Data),
   #template{ text=nxo_template:pretty_render(user_form, Data) }.
 
 event(org_form_submit) ->
-  submission().
+  submission();
+event({new_org_form, UserID}) ->
+  case wf:q(new_org) of
+    [] -> ok;
+    OrgAbbrv -> org_form(OrgAbbrv, UserID)
+  end.
+
+org_form(OrgAbbrv, UserID) ->
+  wf:state(selected_orgs, [wf:to_binary(OrgAbbrv) | ?SELECTED_ORGS_DEFAULT]),
+  Org = hd(nxo_org:find(OrgAbbrv)),
+  User = case nxo_user:find(UserID) of
+           [] -> #{};
+           Users -> hd(Users)
+         end,
+  Groups = nxo_group:all_with_role(OrgAbbrv),
+  Data = maps:merge(User, #{ org => Org,
+                             non_global_groups => Groups }),
+  Stanza = #template{ text=nxo_template:pretty_render(user_org_form, Data) },
+  wf:replace(new_org_dropdown, dropdown({additional_orgs, UserID})),
+  wf:insert_top(org_forms, Stanza).
 
 button({submit, UserID}) ->
   Text = case UserID of
@@ -39,6 +61,34 @@ button({submit, UserID}) ->
            delegate=?MODULE,
            class="btn btn-primary",
            text=Text }.
+
+dropdown({additional_orgs, UserID}) ->
+  ExistingOrgs = case nxo_user:find(UserID) of
+                   [] -> [<<"global">>];
+                   Users -> maps:get(<<"orgs">>, hd(Users))
+                 end,
+  SkipOrgs = ExistingOrgs ++ ?SELECTED_ORGS_DEFAULT,
+  Options = lists:filtermap(fun(Group) ->
+                                Abbrv = maps:get(<<"org_abbrv">>, Group),
+                                case not lists:member(Abbrv, SkipOrgs) of
+                                  true ->
+                                    Text = maps:get(<<"org_name">>, Group),
+                                    {true, #option{ text=Text, value=Abbrv}};
+                                  false ->
+                                    false
+                                end
+                            end, nxo_org:all()),
+  case Options of
+    [] ->
+      wf:remove(new_org);
+    _ ->
+      #dropdown{ id=new_org_dropdown,
+                 class="custom-select",
+                 postback={new_org_form, UserID},
+                 options=[ #option{} | lists:reverse(Options) ]}
+  end.
+
+
 
 
 submission() ->
