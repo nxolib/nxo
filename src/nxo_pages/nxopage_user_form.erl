@@ -7,6 +7,7 @@
         , event/1
         , button/1
         , dropdown/1
+        , org_form/2
         ]).
 
 -security({groups, [administrators, usermgmt]}).
@@ -33,8 +34,12 @@ event({org_form_submit, UserID}) ->
   submission(UserID);
 event({new_org_form, UserID}) ->
   case wf:q(new_org) of
-    [] -> ok;
-    OrgAbbrv -> org_form(OrgAbbrv, UserID)
+    [] ->
+      ok;
+    OrgAbbrv ->
+      Form = org_form(OrgAbbrv, UserID),
+      wf:replace(new_org_dropdown, dropdown({additional_orgs, UserID})),
+      wf:insert_bottom(org_forms, Form)
   end.
 
 
@@ -101,13 +106,15 @@ submission(UserID) ->
                                               wf:to_atom(Contact), Title]),
                       Roles
                   end, wf:qs(selected_new_org)),
-      nxo_db:q(user_set_roles, [UserID, GlobalRoles ++ OrgRoles]),
+      AllRoles = lists:flatten([GlobalRoles, OrgRoles]),
+      nxo_db:q(user_set_roles, [UserID, AllRoles]),
       wf:redirect("/users");
     false ->
       nxo_view:report_validation_failure()
   end.
 
-
+org_form("global", _) ->
+  [];
 org_form(OrgAbbrv, UserID) ->
   %% This is the "sub-form" that appears when the useradmin select a
   %% new organization for the user to subscribe to.
@@ -117,9 +124,12 @@ org_form(OrgAbbrv, UserID) ->
            [] -> #{new_user => true};
            Users -> hd(Users)
          end,
+  UserOrg = case nxo_db:q(user_org, [UserID, OrgAbbrv]) of
+              [] -> #{};
+              UserOrgs -> hd(UserOrgs)
+            end,
   Groups = nxo_group:all_with_role(OrgAbbrv),
   Data = maps:merge(User, #{ org => Org,
+                             user_org =>  UserOrg,
                              non_global_groups => Groups }),
-  Stanza = #template{ text=nxo_template:pretty_render(user_org_form, Data) },
-  wf:replace(new_org_dropdown, dropdown({additional_orgs, UserID})),
-  wf:insert_bottom(org_forms, Stanza).
+  #template{ text=nxo_template:pretty_render(user_org_form, Data) }.

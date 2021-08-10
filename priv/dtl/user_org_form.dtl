@@ -9,7 +9,7 @@
       <div class="form-group">
         <label for="title">Title</label>
         <input type="text"
-               value="{{ title }}"
+               value="{{ user_org.title }}"
                class="form-control wfid_{{ org.org_abbrv }}_title"
                id="title" />
         <small class="form-text text-muted">
@@ -21,10 +21,11 @@
         <label for="is_contact">Organizational Contact</label>
         <select class="custom-select wfid_{{ org.org_abbrv }}_is_contact"
                 id="is_contact">
-          <option value="true" {% if is_contact %}selected{% endif %}>
+          <option value="true" {% if user_org.is_contact %}selected{% endif %}>
             Yes
           </option>
-          <option value="false" {% if not is_contact %}selected{% endif %}>
+          <option value="false"
+                  {% if not user_org.is_contact %}selected{% endif %}>
             No
           </option>
         </select>
