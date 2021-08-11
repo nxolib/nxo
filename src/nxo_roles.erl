@@ -4,6 +4,8 @@
           all/1
         , has_role/2
         , has_role/3
+        , add_role/2
+        , delete_role/2
         , init/0
         , lookup/1
         , flush/0
@@ -34,6 +36,17 @@ has_role(UserID, Org, Role) ->
   OrgBin = wf:to_binary(Org),
   RoleSpec = << OrgBin/binary, "::", RoleBin/binary >>,
   lookup({UserID, RoleSpec}).
+
+add_role(UserID, Role) ->
+  [ok, Res] = nxo_db:q(user_add_role, [UserID, wf:to_binary(Role)]),
+  flush(),
+  maps:get(count, Res) == 1.
+
+delete_role(UserID, Role) ->
+  [ok, Res] = nxo_db:q(user_delete_role, [UserID, wf:to_binary(Role)]),
+  flush(),
+  maps:get(count, Res) == 1.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%
 %% CACHING FUNCTIONS %%

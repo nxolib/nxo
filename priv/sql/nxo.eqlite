@@ -176,7 +176,7 @@ SET setting_value = $3
 WHERE setting_group = $1
   AND setting_name = $2
 
--- :user_active_flag
+-- :user_active_flag (refactored)
 UPDATE nxo_users
 SET active = $2
 WHERE user_id::text = $1
@@ -204,6 +204,22 @@ UPDATE nxo_users
 SET roles = $2
 WHERE user_id::TEXT = $1
 RETURNING roles;
+
+-- :user_add_role (refactored)
+UPDATE nxo_users
+SET roles = ARRAY_APPEND( (SELECT roles
+                             FROM nxo_users
+                            WHERE user_id::TEXT = $1), $2)
+WHERE user_id::TEXT = $1
+  AND (NOT ($2 = ANY(roles)));
+
+-- :user_delete_role (refactored)
+UPDATE nxo_users
+SET roles = ARRAY_REMOVE( (SELECT roles
+                             FROM nxo_users
+                            WHERE user_id::TEXT = $1), $2)
+WHERE user_id::TEXT = $1
+  AND ($2 = ANY(roles));
 
 -- :user_add_org (refactored)
 INSERT INTO nxo_user_orgs (user_id, org_abbrv, is_contact, title)

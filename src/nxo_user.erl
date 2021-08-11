@@ -46,9 +46,9 @@ toggle_active_flag(_, _) ->
 
 %% @doc Possibly remove user from pending state.
 maybe_confirm_account(ID) ->
-  case nxo_group:remove_from_group(ID, pending) of
-    {ok, 0} -> ok;
-    {ok, 1} -> nxo:notify({account_confirmed, ID})
+  case nxo_roles:delete_role(ID, <<"global::pending">>) of
+    false -> ok;
+    true  -> nxo:notify({account_confirmed, ID})
   end.
 
 %% @doc Change user password.

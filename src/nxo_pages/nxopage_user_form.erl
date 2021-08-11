@@ -159,5 +159,4 @@ org_form(OrgAbbrv, UserID) ->
   Data = maps:merge(User, #{ org => Org,
                              user_org =>  UserOrg,
                              non_global_groups => Groups }),
-  ?PRINT(Data),
   #template{ text=nxo_template:pretty_render(user_org_form, Data) }.

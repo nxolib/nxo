@@ -5,8 +5,6 @@
         , all_with_role/1
         , find/1
         , delete_group/1
-        , add_to_group/2
-        , remove_from_group/2
         ]).
 
 %% @doc Return all groups in the group table.
@@ -33,13 +31,13 @@ generate_role(G, OrgAbbrv) ->
 find(Name) ->
   nxo_db:q(group_find, [Name]).
 
-%% @doc Add a UserID to group.
-add_to_group(UserID, GroupName) ->
-  nxo_db:query(role_set_has_role, [UserID, GroupName]).
+%% %% @doc Add a UserID to group.
+%% add_to_group(UserID, GroupName) ->
+%%   nxo_db:query(role_set_has_role, [UserID, GroupName]).
 
-%% @doc Remove a UserID from group.
-remove_from_group(UserID, GroupName) ->
-  nxo_db:q(role_unset_has_role, [UserID, GroupName], raw).
+%% %% @doc Remove a UserID from group.
+%% remove_from_group(UserID, GroupName) ->
+%%   nxo_db:q(role_unset_has_role, [UserID, GroupName], raw).
 
 %% @doc Delete a group specified by name or ID.
 delete_group(Name) ->
