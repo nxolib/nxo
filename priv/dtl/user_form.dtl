@@ -114,7 +114,7 @@
 
   <div class="form-group wfid_org_forms">
     {% for org in orgs %}
-    [[[nxopage_user_form:org_form("{{ org }}", "{{ user_id }}")]]]
+      [[[nxopage_user_form:org_form("{{ org }}", "{{ user_id }}")]]]
     {% endfor %}
   </div>
 

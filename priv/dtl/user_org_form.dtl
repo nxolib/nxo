@@ -1,4 +1,4 @@
-<div class="mt-2">
+<div class="wfid_{{ org.org_abbrv }}_panel pt-3">
   <div class="card">
     <div class="card-body">
       <h5 class="card-title">{{ org.org_name }}</h5>
@@ -48,11 +48,15 @@
                 <label class="custom-control-label"
                        for="{{ org.org_abbrv}}_{{ g.group_name }}">{{ g.description }}</label>
               </div>
-              {% endfor %}
+            {% endfor %}
           </div>
         </div>
 
+        <div class="text-right">
+          [[[ page:button({org_cancel, "{{ user_id }}", "{{ org.org_abbrv }}"}) ]]]
+        </div>
 
+      </div>
     </div>
   </div>
 </div>

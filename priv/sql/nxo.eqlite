@@ -272,6 +272,9 @@ SELECT is_contact, title
 FROM nxo_user_orgs
 WHERE user_id::TEXT = $1 AND org_abbrv = $2;
 
+-- :user_remove_other_orgs (refactored)
+DELETE FROM nxo_user_orgs
+WHERE user_id::TEXT = $1 AND (NOT (org_abbrv = ANY($2)));
 
 -- :user_get_password
 SELECT password
