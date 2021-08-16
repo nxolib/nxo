@@ -137,7 +137,8 @@ persist_orgs(UserID, Orgs, GlobalRoles) ->
   AllRoles = lists:flatten([GlobalRoles, OrgRoles]),
   OrgList = [ wf:to_binary(O) || O <- Orgs ],
   nxo_db:q(user_remove_other_orgs, [UserID, OrgList]),
-  nxo_db:q(user_set_roles, [UserID, AllRoles]).
+  nxo_db:q(user_set_roles, [UserID, AllRoles]),
+  nxo_roles:flush().
 
 
 org_form("global", _) ->

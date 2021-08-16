@@ -1,4 +1,4 @@
-nxo_-module(nxo_query_cache).
+-module(nxo_query_cache).
 -include("nxo.hrl").
 -export([
           init/0

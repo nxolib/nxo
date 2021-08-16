@@ -1,0 +1,28 @@
+## passwords are the same as the uid
+
+dn: ou=testUsers,dc=acme,dc=com
+ou: testUsers
+objectClass: top
+objectClass: organizationalUnit
+
+dn: uid=chuck,ou=testUsers,dc=ace,dc=com
+uid: chuck
+cn: Chuck Test
+sn: Test
+givenname: Chuck
+objectClass: top
+objectClass: person
+objectClass: inetOrgPerson
+mail: chuck@ace.example.com
+userPassword: {SSHA}2J2kglkJ4sE4Gx6gbwqIb75fus1zYWx0
+
+dn: uid=dawn,ou=testUsers,dc=ace,dc=com
+uid: dawn
+cn: Dawn Test
+sn: Test
+givenname: Dawn
+objectClass: top
+objectClass: person
+objectClass: inetOrgPerson
+mail: dawn@ace.example.com
+userPassword: {SSHA}6iXH9/pKl7WuKjxJGo1i1DNr/pdzYWx0

@@ -73,6 +73,33 @@ CREATE TABLE IF NOT EXISTS nxo_api_keys (
   api_key UUID NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS nxo_directories (
+  directory    VARCHAR(48) NOT NULL,
+  org_abbrv    VARCHAR(48) NOT NULL REFERENCES nxo_orgs ON DELETE CASCADE,
+  host         VARCHAR(64) NOT NULL,
+  port         INTEGER NOT NULL,
+  bind         TEXT NOT NULL,
+  bind_pass    TEXT NOT NULL,
+  tls_versions VARCHAR(16)[] NOT NULL DEFAULT ARRAY[]::VARCHAR(16)[],
+  autoregister BOOLEAN NOT NULL DEFAULT FALSE,
+  attr_uid     VARCHAR(64) NOT NULL DEFAULT 'uid',
+  attr_mail    VARCHAR(64) NOT NULL DEFAULT 'mail',
+  attr_fname   VARCHAR(64) NOT NULL DEFAULT 'givenName',
+  attr_lname   VARCHAR(64) NOT NULL DEFAULT 'sn',
+  PRIMARY KEY (directory, org_abbrv)
+);
+
+-- a user/org may only be associated with one directory
+CREATE TABLE IF NOT EXISTS nxo_user_directory (
+  user_id   UUID NOT NULL REFERENCES nxo_users ON DELETE CASCADE,
+  org_abbrv VARCHAR(48) NOT NULL,
+  directory VARCHAR(48) NOT NULL,
+  PRIMARY KEY (user_id, org_abbrv),
+  FOREIGN KEY (directory, org_abbrv) REFERENCES nxo_directories
+    ON DELETE CASCADE
+);
+
+
 
 -- Sufficient groups, orgs, realms, and a seed user to boot the NXO
 -- framework.  Note that the groups and realms defined here should not
