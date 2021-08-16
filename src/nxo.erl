@@ -9,12 +9,6 @@
         , version/1
         , keys_to_binary/1
         , is_string/1
-        , to_list/1
-        , to_binary/1
-        , to_atom/1
-        , to_existing_atom/1
-        , to_integer/1
-        , to_float/1
         , fa/1
         , pickle/1
         , depickle/1
@@ -79,7 +73,7 @@ version(App) ->
 %% Casts map keys to binary.
 -spec keys_to_binary(map()) -> map().
 keys_to_binary(Map) when is_map(Map) ->
-  Fun = fun(K, V, NewMap) -> maps:put(to_binary(K), V, NewMap) end,
+  Fun = fun(K, V, NewMap) -> maps:put(wf:to_binary(K), V, NewMap) end,
   maps:fold(Fun, #{}, Map).
 
 %% Returns true if the Term is a string.
@@ -108,7 +102,7 @@ depickle(PickledTerm) ->
 %% leading slash and de-duplicate extra slashes as well.
 -spec url_path([term()]) -> string().
 url_path(Parts) ->
-  String = string:join(["/" | [ to_list(P) || P <- Parts ]], "/"),
+  String = string:join(["/" | [ wf:to_list(P) || P <- Parts ]], "/"),
   re:replace(String, "//+", "/", [global, {return,list}]).
 
 %% @doc Return the first value that is not 'undefined', 'null', <<>>,
@@ -128,7 +122,7 @@ uuid() ->
 
 %% @doc Return true if a valid uuid, false otherwise.
 is_uuid(UUID) ->
-  try uuid:is_valid(to_list(UUID)) of
+  try uuid:is_valid(wf:to_list(UUID)) of
       true -> true;
       false -> false
   catch
@@ -148,7 +142,7 @@ is_real_list(_) ->
 %% @doc Return the session timeout in MS.
 -spec session_timeout() -> integer().
 session_timeout() ->
-  to_integer(application:get_env(nxo, session_timeout, 20)) * 60 * 1000.
+  wf:to_integer(application:get_env(nxo, session_timeout, 20)) * 60 * 1000.
 
 %% @doc Return when the session timeout warning should fire, in MS.
 -spec session_warning() -> integer().
@@ -256,20 +250,3 @@ random_password(Len) ->
     ChrsSize = size(Chrs),
     F = fun(_, R) -> [element(rand:uniform(ChrsSize), Chrs) | R] end,
     lists:foldl(F, "", lists:seq(1, Len)).
-
-
-%%%%%%%%%%%%%%%%%
-%% CONVERSIONS %%
-%%%%%%%%%%%%%%%%%
-
-to_list(X) -> nxo_convert:to_list(X).
-
-to_atom(X) -> nxo_convert:to_atom(X).
-
-to_existing_atom(X) -> nxo_convert:to_existing_atom(X).
-
-to_binary(X) -> nxo_convert:to_binary(X).
-
-to_integer(X) -> nxo_convert:to_integer(X).
-
-to_float(X) -> nxo_convert:to_float(X).
