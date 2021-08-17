@@ -192,6 +192,7 @@ admin_menu_items() ->
    [admin_everything, "/settings",     "Application Settings"],
    [admin_users,      "/users",        "User Management"],
    [admin_users,      "/organization", "Organization Management"],
+   [admin_users,      "/directories",  "Directory Management"],
    [admin_everything, "/groups",       "Group Management"],
    [admin_everything, "/audit",        "Application Audit"],
    [admin_everything, "/mailcheck",    "Test Email Connectivity"]

@@ -1,0 +1,27 @@
+<table class="table mb-5 wfid_dir_body">
+  <tr>
+    <td>[[[page:button(add)]]]</td>
+    <th>Organization</th>
+    <th>Directory</th>
+    <th>Host</th>
+  </tr>
+
+  {% for d in dirs %}
+    <tr>
+      <td>
+        [[[page:button({info, "{{ d.org_abbrv }}", "{{ d.directory }}"})]]]
+        [[[page:button({edit, "{{ d.org_abbrv }}", "{{ d.directory }}"})]]]
+        [[[page:button({delete, "{{ d.org_abbrv }}", "{{ d.directory }}"})]]]
+      </td>
+      <td>
+        {{ d.org_name }}
+      </td>
+      <td>
+        {{ d.directory }}
+      </td>
+      <td>
+        {{ d.host }}
+      </td>
+    </tr>
+  {% endfor %}
+</table>

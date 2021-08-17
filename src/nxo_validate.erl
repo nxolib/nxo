@@ -78,7 +78,7 @@ validate([], required, _Params) ->
   false;
 validate(Q, required, _Params) when not is_list(Q) ->
   false;
-validate(_, required, _Params) ->
+validate(X, required, _Params) ->
   true;
 
 

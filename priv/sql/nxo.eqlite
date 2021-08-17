@@ -319,3 +319,43 @@ RETURNING user_id, org_id
 UPDATE nxo_users
 SET password = $2
 WHERE user_id::text = $1 OR email = $1::text
+
+-- :all_directories (refactored)
+SELECT nxo_directories.*, org_name
+FROM nxo_directories
+JOIN nxo_orgs USING (org_abbrv)
+ORDER BY org_name, directory;
+
+-- :find_directory (refactored)
+SELECT *
+FROM nxo_directories
+WHERE org_abbrv = $1 AND directory = $2;
+
+-- :directories_for_org (refactored)
+SELECT *
+FROM nxo_directories
+WHERE org_abbrv = $1
+ORDER BY directory;
+
+-- :delete_directory (refactored)
+DELETE FROM nxo_directories
+WHERE org_abbrv = $1 AND directory = $2;
+
+-- :add_directory (refactored)
+INSERT INTO nxo_directories
+ (org_abbrv, directory, host, port, bind, bind_pass,
+  tls_versions, autoregister, attr_uid, attr_mail, attr_fname, attr_lname)
+VALUES
+  ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+ON CONFLICT (directory, org_abbrv)
+DO UPDATE SET
+  host = $3,
+  port = $4,
+  bind = $5,
+  bind_pass = $6,
+  tls_versions = $7,
+  autoregister = $8,
+  attr_uid = $9,
+  attr_mail = $10,
+  attr_fname = $11,
+  attr_lname = $12;

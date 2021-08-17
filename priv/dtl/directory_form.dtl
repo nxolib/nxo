@@ -1,0 +1,172 @@
+<h4>
+  {% if org_abbrv %}
+    Edit Directory
+  {% else %}
+    Add Directory
+  {% endif %}
+</h4>
+
+<form class="col-sm-6">
+
+  <div class="form-group">
+    <label for="organization">Organization</label>
+    <select class="wfid_org_abbrv custom-select">
+      <option value=""></option>
+      {% for org in orgs %}
+        <option
+          {% if org.org_abbrv == org_abbrv %}selected{% endif %}
+          value="{{ org.org_abbrv }}">{{ org.org_name }}</option>
+      {% endfor %}
+    </select>
+    <div class="invalid-feedback">
+      Required field.
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="directory">Directory Name</label>
+    <input type="text"
+           value="{{ directory }}"
+           class="form-control wfid_directory"
+           id="directory" />
+    <div class="invalid-feedback">
+      Required field; must be unique in an organization.
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="host">Host</label>
+    <input type="text"
+           value="{{ host }}"
+           class="form-control wfid_host"
+           id="directory" />
+    <div class="invalid-feedback">
+      Required field.
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="port">Port</label>
+    <input type="text"
+           value="{{ port|default:"389" }}"
+           class="form-control wfid_port"
+           id="port" />
+    <div class="invalid-feedback">
+      Required field.
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="bind">Bind DN</label>
+    <input type="text"
+           value="{{ bind }}"
+           class="form-control wfid_bind"
+           id="bind" />
+    <div class="invalid-feedback">
+      Required field.
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="bind_pass">Bind Password</label>
+    <input type="text"
+           value="{{ bind_pass }}"
+           class="form-control wfid_bind_pass"
+           id="bind_pass" />
+    <div class="invalid-feedback">
+      Required field.
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="tls_verions">TLS Versions</label>
+
+    <div class="custom-control custom-checkbox">
+      <input type="checkbox"
+             value="1.1"
+             class="custom-control-input wfid_tls wfid_tls_11"
+             id="tls_11" />
+      <label for="tls_11" class="custom-control-label">1.1</label>
+    </div>
+
+    <div class="custom-control custom-checkbox">
+      <input type="checkbox"
+             value="1.2"
+             class="custom-control-input wfid_tls wfid_tls_12"
+             id="tls_12" />
+      <label for="tls_12" class="custom-control-label">1.2</label>
+    </div>
+
+    <div class="custom-control custom-checkbox">
+      <input type="checkbox"
+             value="1.3"
+             class="custom-control-input wfid_tls wfid_tls_13"
+             id="tls_13" />
+      <label for="tls_13" class="custom-control-label">1.3</label>
+    </div>
+  </div>
+
+
+
+  <div class="form-group">
+    <label for="attr_uid">UID Attribute</label>
+    <input type="text"
+           value="{{ attr_uid|default:"uid" }}"
+           class="form-control wfid_attr_uid"
+           id="attr_uid" />
+    <div class="invalid-feedback">
+      Required field.
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="attr_mail">Mail Attribute</label>
+    <input type="text"
+           value="{{ attr_mail|default:"mail" }}"
+           class="form-control wfid_attr_mail"
+           id="attr_mail" />
+    <div class="invalid-feedback">
+      Required field.
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="attr_fname">First Name Attribute</label>
+    <input type="text"
+           value="{{ attr_fname|default:"givenName" }}"
+           class="form-control wfid_attr_fname"
+           id="attr_fname" />
+    <div class="invalid-feedback">
+      Required field.
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="attr_lname">Last Name Attribute</label>
+    <input type="text"
+           value="{{ attr_lname|default:"sn" }}"
+           class="form-control wfid_attr_lname"
+           id="attr_lname" />
+    <div class="invalid-feedback">
+      Required field.
+    </div>
+  </div>
+
+  <div class="form-group">
+    <div class="custom-control custom-checkbox">
+      <input type="checkbox"
+             value="true"
+             {% if autoregister %}checked{% endif %}
+             id="autoregister"
+             class="custom-control-input wfid_autoregister" />
+      <label for="autoregister"
+             class="custom-control-label">Allow Self-Registration</label>
+    </div>
+  </div>
+
+  <div class="form-group">[[[page:button({submit, "{{ org_abbrv }}"})]]]</div>
+
+</form>
+
+
+<div class="mt-5 mb-5">&nbsp;</div>
