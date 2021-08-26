@@ -10,8 +10,8 @@
     {% for g in groups %}
         <tr>
             <td>
-                [[[page:button(edit, "{{ g.group_id }}")]]]
-                [[[page:button(delete, "{{ g.group_id }}")]]]
+                [[[page:button(edit, "{{ g.group_name }}")]]]
+                [[[page:button(delete, "{{ g.group_name }}")]]]
             </td>
             <td>{{ g.group_label }}</td>
             <td>{{ g.group_name }}</td>

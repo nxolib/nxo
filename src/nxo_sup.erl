@@ -41,6 +41,7 @@ init([]) ->
 
   %% initialize the caches
   nxo_template_name_cache:init(),
+  nxo_roles:init(),
 
   %% manage event handlers
   start_event_handler(),

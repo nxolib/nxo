@@ -18,7 +18,7 @@ main() -> #template{ file=nxo:template("users.html") }.
 title() -> "User Management".
 
 body() ->
-  Users = nxo_auth_user:all_users(),
+  Users = nxo_user:all(),
   #template{ text=nxo_template:pretty_render(user_list, #{users => Users}) }.
 
 event(help) ->
@@ -34,20 +34,20 @@ event(refresh) ->
 
 event(add) ->
   wf:redirect("/user_form");
-event(addad) ->
-  wf:redirect("/user_ad_add");
+event(add_directory) ->
+  wf:redirect("/user_directory_form");
 event({info, ID}) ->
   nxopage_user_info:open_panel(ID);
 event({edit, ID}) ->
   wf:redirect("/user_form/" ++ ID);
 event({activate, ID}) ->
-  nxo_auth_user:toggle_active_flag(ID, true),
+  nxo_user:toggle_active_flag(ID, true),
   event(refresh);
 event({inactivate, ID}) ->
-  nxo_auth_user:toggle_active_flag(ID, false),
+  nxo_user:toggle_active_flag(ID, false),
   event(refresh);
 event({mask, ID}) ->
-  case nxo_auth_user:find(ID) of
+  case nxo_user:find(ID) of
     [U] ->
       nxo_login_delegate:set_user(U, true),
       wf:redirect("/");
@@ -63,6 +63,13 @@ event({delete_confirmed, ID}) ->
 event(close_button_legend) ->
   nxo_modal:close().
 
+button(add_directory, Icon, Type) ->
+  case nxo_directory:any_defined() of
+    true -> #button{ postback=add_directory,
+                     body=nxo:fa(Icon),
+                     class=button_class(Type) };
+    false -> []
+  end;
 button(Postback, Icon, Type) ->
   #button{ postback=Postback,
            body=nxo:fa(Icon),
@@ -75,16 +82,16 @@ button_class(Type) ->
 %% ----- The help legend -----
 
 button_legend() ->
-  #panel{body=
-           [legend_row("plus",        "success", "Add a Local User"),
-            legend_row("search-plus", "success", "Add an AD User"),
-            legend_row("info-circle", "primary", "Show User Info"),
-            legend_row("edit",        "primary", "Edit User Particulars"),
-            legend_row("users",       "primary", "Manage User Groups"),
-            legend_row("toggle-on",   "success", "Toggle User Active/Inactive"),
-            legend_row("user-secret", "warning", "Masquerade As a User"),
-            legend_row("ban",         "danger",  "Delete a User")]}.
-
+  #panel{
+     body=
+       [legend_row("plus",        "success", "Add a Local User"),
+        legend_row("search-plus", "success", "Add a Directory User"),
+        legend_row("info-circle", "primary", "Show User Info"),
+        legend_row("edit",        "primary", "Edit User Particulars"),
+        legend_row("users",       "primary", "Manage User Groups"),
+        legend_row("toggle-on",   "success", "Toggle User Active/Inactive"),
+        legend_row("user-secret", "warning", "Masquerade As a User"),
+        legend_row("ban",         "danger",  "Delete a User")]}.
 
 legend_row(Icon, Class, Text) ->
   Btn = #button{ class="btn btn-sm btn-" ++ Class, body=nxo:fa(Icon) },

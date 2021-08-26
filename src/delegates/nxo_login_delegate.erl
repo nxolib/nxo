@@ -20,7 +20,7 @@ event(login) ->
   end;
 
 event(unmask) ->
-  case nxo_auth_user:find(wf:session(pre_masquerade_user)) of
+  case nxo_user:find(wf:session(pre_masquerade_user)) of
     [UserData] -> set_user(UserData),
                   wf:session(pre_masquerade_user, undefined),
                   wf:redirect("/");
@@ -65,11 +65,11 @@ display_name(UserData) ->
                 [maps:get(<<"first_name">>, UserData),
                  maps:get(<<"last_name">>, UserData)]).
 
-%% User can be an email address or SAMAccountName.
+%% User can be an email address
 -spec login(User :: string(), Pass :: string()) -> {true, map()} | false.
 
 login(User, Pass) ->
-  case (is_user_active(nxo_auth_user:find(User))) of
+  case (is_user_active(nxo_user:find(User))) of
     {true, UserData} -> authenticate_user(UserData, Pass);
     _ -> false
   end.
@@ -79,16 +79,23 @@ is_user_active([#{<<"active">> := true}=UserData]) ->
 is_user_active(_) ->
   false.
 
-authenticate_user(#{ <<"samaccountname">> := SAM }=UserData, Pass)
-  when SAM =:= <<>> orelse SAM =:= null ->
+authenticate_user(#{ <<"source">> := <<"local">> }=UserData, Pass) ->
   case erlpass:match(Pass, maps:get(<<"password">>, UserData)) of
     true -> successful_audit(UserData);
     false -> failed_audit(UserData, "local password failure")
   end;
-authenticate_user(UserData, Pass) ->
-  case nxo_ad:authenticate(maps:get(<<"samaccountname">>, UserData), Pass) of
-    true -> successful_audit(UserData);
-    false -> failed_audit(UserData, "AD password failure")
+authenticate_user(#{ <<"source">> := <<"directory">>,
+                     <<"email">> := Email,
+                     <<"user_id">> := ID}=UserData, Pass) ->
+  case nxo_db:q(user_directory_find, [ID]) of
+    [Dir] ->
+      OrgAbbrv = maps:get(<<"org_abbrv">>, Dir),
+      case nxo_directory:authenticate(Email, Pass, OrgAbbrv) of
+        true  -> successful_audit(UserData);
+        false -> failed_audit(UserData, "directory password failure")
+      end;
+    _ ->
+      failed_audit(UserData, "organization directory unavailable")
   end.
 
 successful_audit(#{ <<"user_id">> := UserID }=UserData) ->

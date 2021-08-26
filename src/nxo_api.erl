@@ -23,7 +23,7 @@ login(APIKey) ->
   case nxo_db:scalar_query(is_api_key, [APIKey]) of
     [] -> false;
     UserID ->
-      [UserData] = nxo_auth_user:find(UserID),
+      [UserData] = nxo_user:find(UserID),
       nxo_login_delegate:set_user(UserData),
       true
   end.

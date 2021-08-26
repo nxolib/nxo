@@ -10,8 +10,10 @@
           to_rounded_int/1
         , emptystr/1
         , trim/1
+        , trim_list/1
         , passwd/1
         , bool/1
+        , encrypt/1
         ]).
 
 %% @doc Apply a datamap when there's a context to retrieve data from.
@@ -42,20 +44,30 @@ apply_map(MapSpec) ->
 apply_map([], _Params, Data) ->
   lists:reverse(Data);
 apply_map([{FormField, Type, WashFns}|T], Params, Data) ->
-  RawValue = case is_map(Params) of
-               true ->  maps:get(wf:to_list(FormField), Params, []);
-               false -> wf:q(FormField)
-             end,
+  RawValue =
+    case is_map(Params) of
+      true ->  maps:get(wf:to_list(FormField), Params, []);
+      false -> retrieve_parameter(FormField, Type)
+    end,
   AllWashFns = default_wash_options(Type, WashFns),
   Value = lists:foldl(fun wash/2, RawValue, AllWashFns),
   apply_map(T, Params, [Value | Data]).
 
+retrieve_parameter(FormField, Type) ->
+  case lists:suffix("_list", wf:to_list(Type)) of
+    true  -> wf:qs(FormField);
+    false -> wf:q(FormField)
+  end.
+
 default_wash_options(Type, WashFns) ->
   case Type of
-    string  -> [trim, emptystr | WashFns];
-    passwd  -> [emptystr, passwd | WashFns];
-    boolean -> [bool | WashFns];
-    _       -> WashFns
+    string      -> [trim, emptystr | WashFns];
+    emptystring -> [trim | WashFns ];
+    passwd      -> [emptystr, passwd | WashFns];
+    boolean     -> [bool | WashFns];
+    integer     -> [trim, to_rounded_int | WashFns];
+    string_list -> [trim_list | WashFns];
+    _           -> WashFns
   end.
 wash({M, F}, Val) ->
   apply(M, F, [Val]);
@@ -78,18 +90,28 @@ bool("true")      -> true;
 bool(<<"true">>)  -> true;
 bool(false)       -> false;
 bool("false")     -> false;
-bool(<<"false">>) -> false.
+bool(<<"false">>) -> false;
+bool(undefined)   -> false;
+bool([])          -> false.
 
 
 emptystr([]) -> undefined;
 emptystr(Str) -> Str.
 
-trim(Str) when is_list(Str) ->
+trim(Str) when is_list(Str) orelse is_binary(Str) ->
   string:trim(Str);
 trim(NotStr) ->
   NotStr.
+
+trim_list(NotList) when not is_list(NotList) ->
+  [];
+trim_list(List) ->
+  [ trim(wf:to_binary(L)) || L <- List ].
 
 passwd(Str) when length(Str) == 60 ->
   Str;
 passwd(Str) ->
   erlpass:hash(Str).
+
+encrypt(Str) ->
+  nxo:encrypt_binary(Str).

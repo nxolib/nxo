@@ -1,0 +1,140 @@
+<p class="h2 my-4">
+  {% if email %}{{ email }}{% else %}Add User{% endif %}
+</p>
+
+<form class="col-sm-6 mb-5">
+
+  <input type="hidden"
+         class="wfid_source"
+         value="{% if source %}{{ source }}{% else %}local{% endif %}" />
+
+  <input type="hidden"
+         class="wfid_directory_org"
+         value="{{ directory_org }}" />
+
+  <input type="hidden"
+         class="wfid_directory"
+         value="{{ directory }}" />
+
+  <div class="form-group">
+    <label for="email">Email</label>
+    <input type="text"
+           value="{{ email }}"
+           class="form-control wfid_email"
+           id="email" />
+    <div class="invalid-feedback" >
+      Required field; must be unique.
+    </div>
+    <small class="form-text text-muted">
+      Required.
+    </small>
+  </div>
+
+  <div class="form-group">
+    <label for="first_name">First Name</label>
+    <input type="text"
+           value="{{ first_name }}"
+           class="form-control wfid_first_name"
+           id="first_name" />
+    <div class="invalid-feedback">
+      Required field.
+    </div>
+    <small class="form-text text-muted">
+      Required.
+    </small>
+  </div>
+
+  <div class="form-group">
+    <label for="last_name">Last Name</label>
+    <input type="text"
+           value="{{ last_name }}"
+           class="form-control wfid_last_name"
+           id="last_name" />
+    <div class="invalid-feedback">
+      Required field.
+    </div>
+    <small class="form-text text-muted">
+      Required.
+    </small>
+  </div>
+
+  <div class="form-group">
+    <label for="description">Description</label>
+    <input type="text"
+           value="{{ description }}"
+           class="form-control wfid_description"
+           id="description" />
+    <small class="form-text text-muted">
+      Optional note.
+    </small>
+  </div>
+
+  <div class="form-group">
+    <label for="phone">Phone Number</label>
+    <input tpe="text"
+           value="{{ phone }}"
+           class="form-control wfid_phone"
+           id="phone" />
+    <small class="form-text text-muted">
+      Optional; if present must include 10 digits.
+    </small>
+  </div>
+
+  <div class="form-group">
+    <label for="active">Account Active</label>
+    <select class="custom-select wfid_active"
+            id="active">
+      <option value="true" {% if active or new_user %}selected{% endif %}>
+        Yes
+      </option>
+      <option value="false" {% if not active  and not new_user%}selected{% endif %}>
+        No
+      </option>
+    </select>
+  </div>
+
+
+  <div class="form-group">
+    <label for="password">Password</label>
+    <input type="text"
+           class="form-control wfid_password"
+           value="{% if password %}{{ password }}
+           {% else %}[[[ nxo:random_password(12) ]]]{% endif %}"
+           id="password" />
+  </div>
+
+  <div class="form-group">
+    <label for="global_groups">Global Group Membership</label>
+    {% for g in all_groups %}
+      <div class="custom-control custom-checkbox mb-2 ml-4">
+        <input type="checkbox"
+               id="{{ g.group_name }}"
+               value="{{ g.role }}"
+               {% if g.role in roles %}checked{% endif %}
+               {% if g.role == "global::users" %}checked disabled="disabled"{% endif %}
+               class="custom-control-input checkbox wfid_{{g.role}} wfid_global_roles" />
+        <label class="custom-control-label"
+               for="{{ g.group_name }}">{{ g.description }}
+          {% if g.global_only %}<sup>*</sup>{% endif %}</label>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="form-group wfid_org_forms">
+    {% for org in orgs %}
+      [[[nxopage_user_form:org_form("{{ org }}", "{{ user_id }}")]]]
+    {% endfor %}
+  </div>
+
+  <div class="form-group wfid_new_org">
+    <label for="new_org">Additional Organization</label>
+    [[[nxopage_user_form:dropdown({additional_orgs, "{{ user_id }}"})]]]
+  </div>
+
+  <div class="mt-2">
+    [[[nxopage_user_form:button({submit, "{{ user_id }}"})]]]
+  </div>
+
+</form>
+
+<div class="mb-5">&nbsp;</div>

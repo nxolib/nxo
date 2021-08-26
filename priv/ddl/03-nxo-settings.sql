@@ -11,6 +11,6 @@ CREATE TABLE IF NOT EXISTS nxo_settings (
      ON DELETE CASCADE,
   setting        VARCHAR(128) NOT NULL,
   setting_desc   VARCHAR(128) NOT NULL,
-  setting_value  TEXT NULL,
+  setting_value  TEXT NOT NULL DEFAULT '',
   PRIMARY KEY (setting_group, setting)
 );

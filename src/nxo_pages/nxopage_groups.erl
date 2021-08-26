@@ -17,7 +17,7 @@ main() -> #template{ file=nxo:template("groups.html") }.
 title() -> "Group Management".
 
 body() ->
-  Groups = nxo_auth_group:all(),
+  Groups = nxo_group:all(),
   #template{ text=nxo_template:render(group_list, #{groups => Groups }) }.
 
 button(add) ->
@@ -25,22 +25,22 @@ button(add) ->
            body=nxo:fa(plus),
            class="btn btn-sm btn-success" }.
 
-button(edit, ID) ->
-  #button{ postback={edit, ID},
+button(edit, GroupName) ->
+  #button{ postback={edit, GroupName},
            body=nxo:fa(edit),
            class="btn btn-sm btn-primary" };
-button(delete, ID) ->
-  #button{ postback={delete, ID},
+button(delete, GroupName) ->
+  #button{ postback={delete, GroupName},
            body=nxo:fa(ban),
            class="btn btn-sm btn-danger" }.
 
 event(add) ->
   wf:redirect("/group_form");
-event({edit, ID}) ->
-  wf:redirect("/group_form/" ++ ID);
-event({delete, ID}) ->
+event({edit, GroupName}) ->
+  wf:redirect("/group_form/" ++ GroupName);
+event({delete, GroupName}) ->
   wf:wire(#confirm{ text="Do you want to continue?",
-                    postback={delete_confirmed, ID} });
-event({delete_confirmed, ID}) ->
-  nxo_auth_group:delete_group(ID),
+                    postback={delete_confirmed, GroupName} });
+event({delete_confirmed, GroupName}) ->
+  nxo_group:delete_group(GroupName),
   wf:update(group_body, body()).

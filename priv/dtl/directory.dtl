@@ -1,0 +1,42 @@
+<div class="card">
+  <div class="card-body">
+    <h5 class="card-title">{{ directory }}</h5>
+
+    <div class="row">
+      <div class="text-muted col-lg-3">Org</div>
+      <div class="col-lg-8">{{ org_abbrv }}</div>
+    </div>
+    <div class="row">
+      <div class="text-muted col-lg-3">Host</div>
+      <div class="col-lg-8">{{ host }}</div>
+    </div>
+    <div class="row">
+      <div class="text-muted col-lg-3">Port</div>
+      <div class="col-lg-8">{{ port }}</div>
+    </div>
+    <div class="row">
+      <div class="text-muted col-lg-3">BindDN</div>
+      <div class="col-lg-8">{{ bind }}</div>
+    </div>
+    <div class="row">
+      <div class="text-muted col-lg-3">TLS Versions</div>
+      <div class="col-lg-8">{{ tls_versions|join:", " }}</div>
+    </div>
+    <div class="row">
+      <div class="text-muted col-lg-3">UID Attribute</div>
+      <div class="col-lg-8">attr_uid</div>
+    </div>
+    <div class="row">
+      <div class="text-muted col-lg-3">Mail Attribute</div>
+      <div class="col-lg-8">attr_mail</div>
+    </div>
+    <div class="row">
+      <div class="text-muted col-lg-3">First Name Attribute</div>
+      <div class="col-lg-8">{{ attr_fname }}</div>
+    </div>
+    <div class="row">
+      <div class="text-muted col-lg-3">Last Name Attribute</div>
+      <div class="col-lg-8">{{ attr_lname }}</div>
+    </div>
+  </div>
+</div>

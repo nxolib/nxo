@@ -3,73 +3,171 @@
 
 -export([ main/0
         , title/0
+        , body/0
         , event/1
-        , submit_button/0
-        , group_form/0
+        , button/1
+        , dropdown/1
+        , org_form/2
         ]).
 
 -security({groups, [administrators, usermgmt]}).
 -postback_security({groups, [administrators, usermgmt]}).
 
+-define(SELECTED_ORGS_DEFAULT,
+        wf:state_default(selected_orgs, [])).
+
 main() ->
-  nxo_forms:find_obj(fun nxo_auth_user:find/1),
   #template{ file=nxo:template("user_form.html") }.
 
 title() ->
-  case nxo_forms:obj_defined() of
-    false -> "Add User";
-    true  -> "Edit User"
-  end.
+  "User Management".
 
-event(org_form_submit) ->
-  submission().
+body() ->
+  User = case wf:path_info() of
+           [] -> #{new_user => true};
+           UserID -> hd(nxo_user:find(UserID))
+         end,
+  Data = maps:merge(User, #{ all_groups => nxo_group:all() }),
+  #template{ text=nxo_template:pretty_render(user_form, Data) }.
 
-submit_button() ->
+event({org_form_submit, UserID}) ->
+  submission(UserID);
+event({new_org_form, UserID}) ->
+  case wf:q(new_org) of
+    [] ->
+      ok;
+    OrgAbbrv ->
+      Form = org_form(OrgAbbrv, UserID),
+      wf:replace(new_org_dropdown, dropdown({additional_orgs, UserID})),
+      wf:insert_bottom(org_forms, Form)
+  end;
+event({org_cancel, UserID, OrgAbbrv}) ->
+  wf:state(selected_orgs,
+           lists:delete(wf:to_binary(OrgAbbrv), ?SELECTED_ORGS_DEFAULT)),
+  case existing_global_roles(UserID) of
+    [] -> ok; %% new user, nothing to update & persist
+    GlobalRoles ->
+      RemainingOrgs = lists:delete(OrgAbbrv, wf:qs(selected_new_org)),
+      persist_orgs(UserID, RemainingOrgs, GlobalRoles)
+  end,
+  wf:replace(new_org_dropdown, dropdown({additional_orgs, UserID})),
+  wf:remove(wf:to_atom(OrgAbbrv ++ "_panel")).
+
+
+
+
+button({org_cancel, UserID, OrgAbbrv}) ->
+  #button{ postback={org_cancel, UserID, OrgAbbrv},
+           delegate=?MODULE,
+           class="btn btn-link",
+           text="Remove from Organization" };
+button({submit, UserID}) ->
+  {Text, ID} = case UserID of
+                 [] -> {"Add User", nxo:uuid()};
+                 _  -> {"Update User", UserID}
+         end,
   #button{ id=org_form_submit,
-           postback=org_form_submit,
+           postback={org_form_submit, ID},
            delegate=?MODULE,
            class="btn btn-primary",
-           text=title() }.
+           text=Text }.
 
-submission() ->
-  ID = case nxo_forms:obj_defined() of
-         false -> nxo:uuid();
-         _     -> wf:state(objID)
-       end,
-  case nxo_validate:validate(user_form, #{user_id => wf:state(objID)}) of
+dropdown({additional_orgs, UserID}) ->
+  ExistingOrgs = case nxo_user:find(UserID) of
+                   [] -> [<<"global">>];
+                   Users -> maps:get(<<"orgs">>, hd(Users))
+                 end,
+  SkipOrgs = ExistingOrgs ++ ?SELECTED_ORGS_DEFAULT,
+  Options = lists:filtermap(fun(Group) ->
+                                Abbrv = maps:get(<<"org_abbrv">>, Group),
+                                case not lists:member(Abbrv, SkipOrgs) of
+                                  true ->
+                                    Text = maps:get(<<"org_name">>, Group),
+                                    {true, #option{ text=Text, value=Abbrv}};
+                                  false ->
+                                    false
+                                end
+                            end, nxo_org:all()),
+  case Options of
+    [] ->
+      wf:wire(new_org, #hide{}),
+      #dropdown{ id=new_org_dropdown, class="d-none" };
+    _ ->
+      wf:wire(new_org, #show{}),
+      #dropdown{ id=new_org_dropdown,
+                 class="custom-select",
+                 delegate=?MODULE,
+                 postback={new_org_form, UserID},
+                 options=[ #option{} | lists:reverse(Options) ]}
+  end.
+
+
+submission(UserID) ->
+  %% UserID might be from the DB or it might have been generated.
+  case nxo_validate:validate(user_form, #{user_id => UserID}) of
     true ->
-      [UID, OID] = nxo_db:cascading_update(
-                     [ {user_add, [ID | nxo_datamap:apply(user_add)]},
-                       {user_org_add, nxo_datamap:apply(user_org_add)}
-                     ]),
-      update_groups(UID, OID, selected_groups()),
+      SimpleParams = nxo_datamap:apply(user_add),
+      GlobalRoles = [ wf:to_binary(R) || R <- wf:qs(global_roles) ],
+      Params = [UserID | SimpleParams] ++ [GlobalRoles],
+      nxo_db:q(user_add, Params),
+      case wf:q(source) == "directory" of
+        true ->
+          DirParams = [UserID, wf:q(directory_org), wf:q(directory)],
+          ?PRINT(DirParams),
+          Res = nxo_db:q(user_directory_add, DirParams),
+          ?PRINT(Res);
+        false ->
+          ok
+      end,
+      persist_orgs(UserID, wf:qs(selected_new_org), GlobalRoles),
       wf:redirect("/users");
     false ->
       nxo_view:report_validation_failure()
   end.
 
-%% user_org_groups is a pretty fancy query.  It first deletes all of
-%% the existing UID/OID associations in the table then inserts all of
-%% the selected GIDs (possibly changing the OID to match the global
-%% group if it's a global_only group). Note that the last three
-%% parameters (UIDParam, OIDParam, GIDs) are arrays that are unnested
-%% in the query and **must** be the same length (hence the duplicate).
-update_groups(UID, OID, GIDs) ->
-  BinGIDs = lists:map(fun wf:to_binary/1, GIDs),
-  UIDParam = lists:duplicate(length(GIDs), UID),
-  OIDParam = lists:duplicate(length(GIDs), OID),
-  nxo_db:query(user_org_groups, [UID, OID, UIDParam, OIDParam, BinGIDs]).
+existing_global_roles([]) -> [];
+existing_global_roles(UserID) ->
+  lists:filter(fun(R) ->
+                   case binary:match(R, <<"global::">>) of
+                     nomatch -> false;
+                     _       -> true
+                   end end, nxo_roles:all(UserID)).
+
+persist_orgs(UserID, Orgs, GlobalRoles) ->
+  OrgRoles =
+    lists:map(fun(Abbrv) ->
+                  Title = wf:q(wf:to_atom(Abbrv ++ "_title")),
+                  Contact = wf:q(wf:to_atom(Abbrv ++ "_is_contact")),
+                  Roles = [ wf:to_binary(R)
+                            || R <- wf:qs(wf:to_atom(Abbrv ++ "_role")) ],
+                  nxo_db:q(user_add_org, [UserID, Abbrv,
+                                          wf:to_atom(Contact), Title]),
+                  Roles
+              end, Orgs),
+  AllRoles = lists:flatten([GlobalRoles, OrgRoles]),
+  OrgList = [ wf:to_binary(O) || O <- Orgs ],
+  nxo_db:q(user_remove_other_orgs, [UserID, OrgList]),
+  nxo_db:q(user_set_roles, [UserID, AllRoles]),
+  nxo_roles:flush().
 
 
-% prepares the Organization and Group part of the form.  we did that
-% part separately so that future versions could add multiple instances
-% of this form segment (if the user is in more than one organization).
-group_form() ->
-  Data = #{orgs => nxo_org:all(),
-           user => wf:state(obj),
-           groups => nxo_auth_group:all()},
-  #template{ text=nxo_template:render(user_group, Data) }.
-
-% returns a list of group_ids that have their checkboxes checked.
-selected_groups() ->
-  lists:filter(fun(G) -> wf:q(G) == G end, nxo_auth_group:ids()).
+org_form("global", _) ->
+  [];
+org_form(OrgAbbrv, UserID) ->
+  %% This is the "sub-form" that appears when the useradmin select a
+  %% new organization for the user to subscribe to.
+  wf:state(selected_orgs, [wf:to_binary(OrgAbbrv) | ?SELECTED_ORGS_DEFAULT]),
+  Org = hd(nxo_org:find(OrgAbbrv)),
+  User = case nxo_user:find(UserID) of
+           [] -> #{new_user => true};
+           Users -> hd(Users)
+         end,
+  UserOrg = case nxo_db:q(user_org, [UserID, OrgAbbrv]) of
+              [] -> #{};
+              UserOrgs -> hd(UserOrgs)
+            end,
+  Groups = nxo_group:all_with_role(OrgAbbrv),
+  Data = maps:merge(User, #{ org => Org,
+                             user_org =>  UserOrg,
+                             non_global_groups => Groups }),
+  #template{ text=nxo_template:pretty_render(user_org_form, Data) }.

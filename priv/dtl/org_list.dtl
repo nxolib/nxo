@@ -1,4 +1,4 @@
-<table class="table mb-5">
+<table class="table mb-5 wfid_org_body">
     <tr>
         <td>[[[page:button(add)]]]</td>
         <th>Organization Name</th>
@@ -8,10 +8,10 @@
     {% for o in orgs %}
         <tr>
             <td>
-                [[[page:button({info, "{{o.org_id}}"})]]]
+                [[[page:button({info, "{{o.org_abbrv}}"})]]]
                 {% if o.org_abbrv != "global" %}
-                    [[[page:button({edit, "{{o.org_id}}"})]]]
-                    [[[page:button({delete, "{{o.org_id}}"})]]]
+                    [[[page:button({edit, "{{o.org_abbrv}}"})]]]
+                    [[[page:button({delete, "{{o.org_abbrv}}"})]]]
                 {% endif %}
             </td>
             <td>{{ o.org_name }}</td>

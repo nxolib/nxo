@@ -154,12 +154,12 @@ user_menu(unmask) ->
     _ -> menu_item("/login/unmask", "Unmask")
   end;
 user_menu(passwd) ->
-  case nxo_auth_user:is_ad(wf:user()) of
+  case nxo_user:is_directory_user(wf:user()) of
     true  -> [];
     false -> menu_item("/password", "Change Password")
   end;
 user_menu(api) ->
-  case nxo_authz:may(api) of
+  case wf:role(api) of
     false -> [];
     true -> menu_item("/api", "API Token Management")
   end;
@@ -168,7 +168,7 @@ user_menu(logout) ->
 
 %% @doc Decide what to show on the admin menu.
 admin_menu_list() ->
-  case nxo_authz:may(admin_something) of
+  case wf:role(admin_something) of
     false -> [];
     true  -> admin_menu()
   end.
@@ -192,13 +192,14 @@ admin_menu_items() ->
    [admin_everything, "/settings",     "Application Settings"],
    [admin_users,      "/users",        "User Management"],
    [admin_users,      "/organization", "Organization Management"],
+   [admin_users,      "/directories",  "Directory Management"],
    [admin_everything, "/groups",       "Group Management"],
    [admin_everything, "/audit",        "Application Audit"],
    [admin_everything, "/mailcheck",    "Test Email Connectivity"]
   ].
 
 menu_item(Realm, URL, Label) ->
-  case nxo_authz:may(Realm) of
+  case wf:role(Realm) of
     true -> menu_item(URL, Label);
     false -> []
   end.

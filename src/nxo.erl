@@ -9,12 +9,6 @@
         , version/1
         , keys_to_binary/1
         , is_string/1
-        , to_list/1
-        , to_binary/1
-        , to_atom/1
-        , to_existing_atom/1
-        , to_integer/1
-        , to_float/1
         , fa/1
         , pickle/1
         , depickle/1
@@ -36,6 +30,11 @@
         , user/0
         , is_authenticated/0
         , consult_file/3
+        , random_password/1
+        , encrypt_binary/1
+        , encrypt_binary/2
+        , decrypt_binary/1
+        , decrypt_binary/2
         ]).
 
 -define(EVENT, nxo_event_handler).
@@ -78,7 +77,7 @@ version(App) ->
 %% Casts map keys to binary.
 -spec keys_to_binary(map()) -> map().
 keys_to_binary(Map) when is_map(Map) ->
-  Fun = fun(K, V, NewMap) -> maps:put(to_binary(K), V, NewMap) end,
+  Fun = fun(K, V, NewMap) -> maps:put(wf:to_binary(K), V, NewMap) end,
   maps:fold(Fun, #{}, Map).
 
 %% Returns true if the Term is a string.
@@ -107,7 +106,7 @@ depickle(PickledTerm) ->
 %% leading slash and de-duplicate extra slashes as well.
 -spec url_path([term()]) -> string().
 url_path(Parts) ->
-  String = string:join(["/" | [ to_list(P) || P <- Parts ]], "/"),
+  String = string:join(["/" | [ wf:to_list(P) || P <- Parts ]], "/"),
   re:replace(String, "//+", "/", [global, {return,list}]).
 
 %% @doc Return the first value that is not 'undefined', 'null', <<>>,
@@ -127,7 +126,7 @@ uuid() ->
 
 %% @doc Return true if a valid uuid, false otherwise.
 is_uuid(UUID) ->
-  try uuid:is_valid(to_list(UUID)) of
+  try uuid:is_valid(wf:to_list(UUID)) of
       true -> true;
       false -> false
   catch
@@ -147,7 +146,7 @@ is_real_list(_) ->
 %% @doc Return the session timeout in MS.
 -spec session_timeout() -> integer().
 session_timeout() ->
-  to_integer(application:get_env(nxo, session_timeout, 20)) * 60 * 1000.
+  wf:to_integer(application:get_env(nxo, session_timeout, 20)) * 60 * 1000.
 
 %% @doc Return when the session timeout warning should fire, in MS.
 -spec session_warning() -> integer().
@@ -248,19 +247,53 @@ consult_file(File, SubDir, Ext) ->
   end.
 
 
+%% Generate a random-ish password of length Len.
+random_password(Len) ->
+    Chrs = list_to_tuple("ABCDEFGHIJKLMNOPQRSTUVWXYZ" ++
+                           "abcdefghijklmnopqrstuvwxyz0123456789"),
+    ChrsSize = size(Chrs),
+    F = fun(_, R) -> [element(rand:uniform(ChrsSize), Chrs) | R] end,
+    lists:foldl(F, "", lists:seq(1, Len)).
 
-%%%%%%%%%%%%%%%%%
-%% CONVERSIONS %%
-%%%%%%%%%%%%%%%%%
 
-to_list(X) -> nxo_convert:to_list(X).
 
-to_atom(X) -> nxo_convert:to_atom(X).
+%%%%%%%%%%%%%%%%%%%%%%%%
+%% ENCRYPTION HELPERS %%
+%%%%%%%%%%%%%%%%%%%%%%%%
+encrypt_binary(Bin) ->
+  case application:get_env(nxo, enc_key, undefined) of
+    undefined ->
+      error("Neither enc_key configuration nor key specified");
+    EncKey ->
+      encrypt_binary(Bin, EncKey)
+  end.
 
-to_existing_atom(X) -> nxo_convert:to_existing_atom(X).
+encrypt_binary(Bin, "file://" ++ File) ->
+  {ok, KeyString} = file:read_file(File),
+  encrypt_binary(Bin, KeyString);
+encrypt_binary(Bin, KeyString) ->
+  Key = crypto_key(KeyString),
+  IV = crypto:strong_rand_bytes(16),
+  Crypt = crypto:crypto_one_time(aes_128_ctr, Key, IV, Bin, true),
+  base64:encode(<<IV/binary, Crypt/binary>>).
 
-to_binary(X) -> nxo_convert:to_binary(X).
+decrypt_binary(Bin) ->
+  case application:get_env(nxo, enc_key, undefined) of
+    undefined ->
+      error("Neither enc_key configuration nor key specified");
+    EncKey ->
+      decrypt_binary(Bin, EncKey)
+  end.
 
-to_integer(X) -> nxo_convert:to_integer(X).
+decrypt_binary(Bin, "file://" ++ File) ->
+  {ok, KeyString} = file:read_file(File),
+  decrypt_binary(Bin, KeyString);
+decrypt_binary(Bin, KeyString) ->
+  Key = crypto_key(KeyString),
+  <<IV:16/bytes, Cyphertext/binary>> = base64:decode(Bin),
+  crypto:crypto_one_time(aes_128_ctr, Key, IV, Cyphertext, false).
 
-to_float(X) -> nxo_convert:to_float(X).
+crypto_key(KeyString) ->
+  KeyBinary = wf:to_binary(KeyString),
+  Padded = <<KeyBinary/binary, 0:128>>,
+  <<Padded:128/bits>>.
