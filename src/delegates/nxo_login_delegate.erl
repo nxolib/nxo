@@ -84,10 +84,18 @@ authenticate_user(#{ <<"source">> := <<"local">> }=UserData, Pass) ->
     true -> successful_audit(UserData);
     false -> failed_audit(UserData, "local password failure")
   end;
-authenticate_user(UserData, Pass) ->
-  case nxo_ad:authenticate(maps:get(<<"samaccountname">>, UserData), Pass) of
-    true -> successful_audit(UserData);
-    false -> failed_audit(UserData, "AD password failure")
+authenticate_user(#{ <<"source">> := <<"directory">>,
+                     <<"email">> := Email,
+                     <<"user_id">> := ID}=UserData, Pass) ->
+  case nxo_db:q(user_directory_find, [ID]) of
+    [Dir] ->
+      OrgAbbrv = maps:get(<<"org_abbrv">>, Dir),
+      case nxo_directory:authenticate(Email, Pass, OrgAbbrv) of
+        true  -> successful_audit(UserData);
+        false -> failed_audit(UserData, "directory password failure")
+      end;
+    _ ->
+      failed_audit(UserData, "organization directory unavailable")
   end.
 
 successful_audit(#{ <<"user_id">> := UserID }=UserData) ->

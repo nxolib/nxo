@@ -207,6 +207,11 @@ DO UPDATE SET directory = $3
   WHERE nxo_user_directory.user_id = $1
 RETURNING user_id;
 
+-- :user_directory_find (refactored)
+SELECT user_id, org_abbrv, directory
+FROM nxo_user_directory
+WHERE user_id = $1;
+
 -- :user_set_roles (refactored)
 UPDATE nxo_users
 SET roles = $2
