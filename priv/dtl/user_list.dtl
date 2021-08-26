@@ -7,7 +7,7 @@
         </td>
         <th>Email</th>
         <th>Name</th>
-        <th>Account Name</th>
+        <th>Source</th>
         <th>Organization</th>
     </tr>
 
@@ -31,7 +31,7 @@
             </td>
             <td>{{ u.email }}</td>
             <td>{{ u.last_name }}, {{ u.first_name }}</td>
-            <td>{{ u.samaccountname }}</td>
+            <td>{{ u.source }}</td>
             <td>{% if u.orgs %}{{ u.orgs|join:", " }}{% endif %}</td>
         </tr>
     {% endfor %}

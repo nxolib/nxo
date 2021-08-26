@@ -94,11 +94,11 @@ result_to_map(account, Result, DirMap) ->
   Directory = directory(DirMap),
   [UIDAttr, FNameAttr, LNameAttr, MailAttr] =
     [ attr(A, DirMap) || A <- [uid, fname, lname, mail] ],
-  [ #{ uid =>   hd(proplists:get_value(UIDAttr, R,   [[]])),
-       mail =>  hd(proplists:get_value(MailAttr, R,  [[]])),
-       fname => hd(proplists:get_value(FNameAttr, R, [[]])),
-       lname => hd(proplists:get_value(LNameAttr, R, [[]])),
-       dn => DN,
+  [ #{ uid =>   wf:to_binary(hd(proplists:get_value(UIDAttr, R,   [[]]))),
+       mail =>  wf:to_binary(hd(proplists:get_value(MailAttr, R,  [[]]))),
+       fname => wf:to_binary(hd(proplists:get_value(FNameAttr, R, [[]]))),
+       lname => wf:to_binary(hd(proplists:get_value(LNameAttr, R, [[]]))),
+       dn => wf:to_binary(DN),
        directory => Directory } || {eldap_entry, DN, R} <- Result ].
 
 filter(entry, Ident, DirMap) ->

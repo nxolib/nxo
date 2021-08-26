@@ -96,6 +96,7 @@ dropdown({additional_orgs, UserID}) ->
       wf:wire(new_org, #show{}),
       #dropdown{ id=new_org_dropdown,
                  class="custom-select",
+                 delegate=?MODULE,
                  postback={new_org_form, UserID},
                  options=[ #option{} | lists:reverse(Options) ]}
   end.
@@ -109,6 +110,15 @@ submission(UserID) ->
       GlobalRoles = [ wf:to_binary(R) || R <- wf:qs(global_roles) ],
       Params = [UserID | SimpleParams] ++ [GlobalRoles],
       nxo_db:q(user_add, Params),
+      case wf:q(source) == "directory" of
+        true ->
+          DirParams = [UserID, wf:q(directory_org), wf:q(directory)],
+          ?PRINT(DirParams),
+          Res = nxo_db:q(user_directory_add, DirParams),
+          ?PRINT(Res);
+        false ->
+          ok
+      end,
       persist_orgs(UserID, wf:qs(selected_new_org), GlobalRoles),
       wf:redirect("/users");
     false ->

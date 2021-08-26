@@ -12,7 +12,7 @@
 -postback_security(authenticated).
 
 main() ->
-  case nxo_user:is_ad(wf:user()) of
+  case nxo_user:is_directory_user(wf:user()) of
     true  -> wf:redirect("/");
     false -> #template{ file=nxo:template("password.html") }
   end.

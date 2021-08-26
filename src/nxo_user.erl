@@ -6,7 +6,7 @@
         , id/1
         , toggle_active_flag/2
         , maybe_confirm_account/1
-        , is_ad/1
+        , is_directory_user/1
         , change_password/2
         ]).
 
@@ -14,7 +14,7 @@
 all() ->
   nxo_db:q(user_all).
 
-%% @doc Find a user by email or user_id or samaccountname.
+%% @doc Find a user by email or user_id
 find(EmailOrID) ->
   nxo_db:q(user_find, [EmailOrID]).
 
@@ -26,12 +26,9 @@ id(EmailOrID) ->
   end.
 
 %% @doc Determine if a user is a local or AD account.
-is_ad(UserID) ->
+is_directory_user(UserID) ->
   [UserData] = find(UserID),
-  case maps:get(<<"samaccountname">>, UserData, null) of
-    <<>> -> false;
-    _    -> true
-  end.
+  maps:get(<<"source">>, UserData, undefined) == <<"directory">>.
 
 %% @doc Toggle a user active flag on (true) or off (false).
 toggle_active_flag(ID, Flag) when Flag == true;

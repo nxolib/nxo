@@ -2,17 +2,23 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 CREATE EXTENSION IF NOT EXISTS hstore;
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+DO $$ BEGIN
+  CREATE TYPE nxo_user_source AS ENUM('local', 'directory');
+EXCEPTION
+  WHEN duplicate_object THEN null;
+END $$;
+
 CREATE TABLE IF NOT EXISTS nxo_users (
   user_id        UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  email          VARCHAR(128) NOT NULL UNIQUE,
-  password       VARCHAR(64)  NOT NULL,
-  phone          VARCHAR(32)  NOT NULL DEFAULT '',
-  first_name     VARCHAR(64)  NOT NULL DEFAULT '',
-  last_name      VARCHAR(64)  NOT NULL DEFAULT '',
-  description    VARCHAR(256) NOT NULL DEFAULT '',
-  samaccountname VARCHAR(64)  NOT NULL DEFAULT '',
-  active         BOOLEAN NOT NULL DEFAULT true,
-  roles          TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[]
+  email          VARCHAR(128)     NOT NULL UNIQUE,
+  password       VARCHAR(64)      NOT NULL,
+  phone          VARCHAR(32)      NOT NULL DEFAULT '',
+  first_name     VARCHAR(64)      NOT NULL DEFAULT '',
+  last_name      VARCHAR(64)      NOT NULL DEFAULT '',
+  description    VARCHAR(256)     NOT NULL DEFAULT '',
+  source         nxo_user_source  NOT NULL DEFAULT 'local',
+  active         BOOLEAN          NOT NULL DEFAULT true,
+  roles          TEXT[]           NOT NULL DEFAULT ARRAY[]::TEXT[]
   );
 
 CREATE TABLE IF NOT EXISTS nxo_groups (

@@ -7,23 +7,30 @@
 
   <body>
     [[[ nxo_view:menu() ]]]
-      <div class="container">
-          <h3>Add a Directory User</h3>
+    <div class="container">
+      <h3>Add a Directory User</h3>
 
-        <form class="col-sm-6 mb-5">
-            <div class="form-group">
-                <label for="organization">Organization</label>
-                [[[ page:organization_list() ]]]
-            </div>
+      <form class="col-sm-6 mb-5 wfid_the_form">
+        <input type="hidden" value="" class="wfid_entry_specs" />
 
-            <div class="form-group">
-                <label for="ad">Email, Last Name, or ID</label>
-                [[[ page:search_box() ]]]
-            </div>
-        </form>
-
-        <div class="wfid_userinfo">
+        <div class="form-group">
+          <label for="organization">Organization</label>
+          [[[ page:organization_list() ]]]
         </div>
+
+        <div class="form-group">
+          <label for="ad">Email, Last Name, or ID</label>
+          [[[ page:search_box() ]]]
+        </div>
+
+        <div class="form-group">
+          [[[ page:button(submit) ]]]
+          [[[ page:button(reset) ]]]
+        </div>
+      </form>
+
+      <div class="wfid_userinfo">
+      </div>
     </div>
 
 

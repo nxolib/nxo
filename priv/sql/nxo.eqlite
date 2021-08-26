@@ -185,7 +185,7 @@ RETURNING user_id
 -- :user_add (refactored)
 INSERT INTO nxo_users
   (user_id, email, phone, first_name, last_name,
-   description, active, samaccountname, password, roles)
+   description, active, source, password, roles)
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 ON CONFLICT(user_id)
 DO UPDATE SET email = $2,
@@ -197,7 +197,15 @@ DO UPDATE SET email = $2,
               password = $9,
               roles = $10
           WHERE nxo_users.user_id = $1
-RETURNING user_id
+RETURNING user_id;
+
+-- :user_directory_add (refactored)
+INSERT INTO nxo_user_directory (user_id, org_abbrv, directory)
+VALUES ($1, $2, $3)
+ON CONFLICT(user_id, org_abbrv)
+DO UPDATE SET directory = $3
+  WHERE nxo_user_directory.user_id = $1
+RETURNING user_id;
 
 -- :user_set_roles (refactored)
 UPDATE nxo_users
@@ -242,7 +250,7 @@ SELECT
   u.last_name,
   u.first_name || ' ' || u.last_name AS display_name,
   u.description,
-  u.samaccountname,
+  u.source,
   u.active,
   u.roles,
   (SELECT '{ "global::pending" }' @> roles) AS is_pending,
@@ -267,7 +275,7 @@ SELECT
   u.last_name,
   u.first_name || ' ' || u.last_name AS display_name,
   u.description,
-  u.samaccountname,
+  u.source,
   u.active,
   u.roles,
   (SELECT '{ "global::pending" }' @> roles) AS is_pending,
@@ -278,9 +286,7 @@ FROM
   nxo_users u
 WHERE
   ($1::TEXT IS NOT NULL AND $1::TEXT !='')
-  AND (LOWER(email) = LOWER($1)
-      OR u.user_id::TEXT = $1
-      OR LOWER(samaccountname) = LOWER($1));
+  AND (LOWER(email) = LOWER($1) OR u.user_id::TEXT = $1)
 
 
 -- :user_org (refactored)

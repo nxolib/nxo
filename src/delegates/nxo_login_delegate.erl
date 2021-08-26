@@ -65,7 +65,7 @@ display_name(UserData) ->
                 [maps:get(<<"first_name">>, UserData),
                  maps:get(<<"last_name">>, UserData)]).
 
-%% User can be an email address or SAMAccountName.
+%% User can be an email address
 -spec login(User :: string(), Pass :: string()) -> {true, map()} | false.
 
 login(User, Pass) ->
@@ -79,8 +79,7 @@ is_user_active([#{<<"active">> := true}=UserData]) ->
 is_user_active(_) ->
   false.
 
-authenticate_user(#{ <<"samaccountname">> := SAM }=UserData, Pass)
-  when SAM =:= <<>> orelse SAM =:= null ->
+authenticate_user(#{ <<"source">> := <<"local">> }=UserData, Pass) ->
   case erlpass:match(Pass, maps:get(<<"password">>, UserData)) of
     true -> successful_audit(UserData);
     false -> failed_audit(UserData, "local password failure")

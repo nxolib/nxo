@@ -6,5 +6,5 @@
 {last_name, string, []}.
 {description, emptystring, []}.
 {active, boolean, []}.
-{samaccountname, emptystring, []}.
+{source, emptystring, []}.
 {password, passwd, []}.

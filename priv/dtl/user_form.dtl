@@ -5,8 +5,16 @@
 <form class="col-sm-6 mb-5">
 
   <input type="hidden"
-         class="wfid_samaccountname"
-         value="{{ sam_account_name }}" />
+         class="wfid_source"
+         value="{% if source %}{{ source }}{% else %}local{% endif %}" />
+
+  <input type="hidden"
+         class="wfid_directory_org"
+         value="{{ directory_org }}" />
+
+  <input type="hidden"
+         class="wfid_directory"
+         value="{{ directory }}" />
 
   <div class="form-group">
     <label for="email">Email</label>
@@ -120,11 +128,11 @@
 
   <div class="form-group wfid_new_org">
     <label for="new_org">Additional Organization</label>
-    [[[page:dropdown({additional_orgs, "{{ user_id }}"})]]]
+    [[[nxopage_user_form:dropdown({additional_orgs, "{{ user_id }}"})]]]
   </div>
 
   <div class="mt-2">
-    [[[page:button({submit, "{{ user_id }}"})]]]
+    [[[nxopage_user_form:button({submit, "{{ user_id }}"})]]]
   </div>
 
 </form>
