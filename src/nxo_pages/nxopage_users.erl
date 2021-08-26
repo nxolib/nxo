@@ -34,8 +34,8 @@ event(refresh) ->
 
 event(add) ->
   wf:redirect("/user_form");
-event(addad) ->
-  wf:redirect("/user_ad_add");
+event(add_directory) ->
+  wf:redirect("/user_directory_form");
 event({info, ID}) ->
   nxopage_user_info:open_panel(ID);
 event({edit, ID}) ->
@@ -63,6 +63,13 @@ event({delete_confirmed, ID}) ->
 event(close_button_legend) ->
   nxo_modal:close().
 
+button(add_directory, Icon, Type) ->
+  case nxo_directory:any_defined() of
+    true -> #button{ postback=add_directory,
+                     body=nxo:fa(Icon),
+                     class=button_class(Type) };
+    false -> []
+  end;
 button(Postback, Icon, Type) ->
   #button{ postback=Postback,
            body=nxo:fa(Icon),
@@ -78,7 +85,7 @@ button_legend() ->
   #panel{
      body=
        [legend_row("plus",        "success", "Add a Local User"),
-        legend_row("search-plus", "success", "Add an AD User"),
+        legend_row("search-plus", "success", "Add a Directory User"),
         legend_row("info-circle", "primary", "Show User Info"),
         legend_row("edit",        "primary", "Edit User Particulars"),
         legend_row("users",       "primary", "Manage User Groups"),

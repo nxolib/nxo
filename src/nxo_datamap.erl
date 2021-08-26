@@ -13,6 +13,7 @@
         , trim_list/1
         , passwd/1
         , bool/1
+        , encrypt/1
         ]).
 
 %% @doc Apply a datamap when there's a context to retrieve data from.
@@ -111,3 +112,6 @@ passwd(Str) when length(Str) == 60 ->
   Str;
 passwd(Str) ->
   erlpass:hash(Str).
+
+encrypt(Str) ->
+  nxo:encrypt_binary(Str).

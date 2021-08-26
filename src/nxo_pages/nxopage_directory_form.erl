@@ -23,7 +23,10 @@ body() ->
              case nxo_directory:find(wf:url_decode(OrgAbbrv),
                                      wf:url_decode(Directory)) of
                [] -> Orgs;
-               [Dir] -> maps:merge(Dir, Orgs)
+               [Dir] ->
+                 PW = nxo:decrypt_binary(maps:get(<<"bind_pass">>, Dir)),
+                 Decrypted = maps:update(<<"bind_pass">>, PW, Dir),
+                 maps:merge(Decrypted, Orgs)
              end;
            _ -> Orgs
          end,

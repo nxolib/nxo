@@ -3,7 +3,7 @@
         <td>
             [[[ page:button(help,  question,      secondary) ]]]
             [[[ page:button(add,   plus,          success)   ]]]
-            [[[ page:button(addad, "search-plus", success)   ]]]
+            [[[ page:button(add_directory, "search-plus", success)   ]]]
         </td>
         <th>Email</th>
         <th>Name</th>

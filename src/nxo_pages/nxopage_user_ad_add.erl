@@ -31,18 +31,20 @@ main() ->
 title() -> "Add Directory User".
 
 organization_list() ->
-  #dropdown{ id=organization,
-             class="custom-select",
-             value="meei",
-             options=[#option{ text="Mass Eye and Ear", value="meei" }]}.
+  Options = [ #option{ text=maps:get(<<"org_name">>, O),
+                       value=maps:get(<<"org_abbrv">>, O)}
+            || O <- nxo_directory:directory_organizations() ],
+  #dropdown{ class="custom-select",
+             id=organization,
+             options=[#option{} | Options] }.
 
 
 usersearch() ->
-  #textbox_autocomplete{ tag=adsearch,
+  #textbox_autocomplete{ tag=directory_search,
                          minLength=3,
                          class="form-control",
-                         html_id="ad",
-                         id=ad }.
+                         html_id="directory_search",
+                         id=directory_search }.
 
 autocomplete_enter_event(Term, _Tag) ->
   Results = [ [

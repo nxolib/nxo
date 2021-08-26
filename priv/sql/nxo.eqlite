@@ -337,16 +337,29 @@ FROM nxo_directories
 WHERE org_abbrv = $1
 ORDER BY directory;
 
+-- :directory_organizations (refactored)
+SELECT *
+FROM nxo_orgs
+WHERE org_abbrv IN (SELECT DISTINCT org_abbrv FROM nxo_directories)
+ORDER BY org_name;
+
+-- :directories_defined (refactored)
+SELECT CASE WHEN EXISTS (SELECT * from nxo_directories)
+  THEN true
+  ELSE false
+END;
+
+
 -- :delete_directory (refactored)
 DELETE FROM nxo_directories
 WHERE org_abbrv = $1 AND directory = $2;
 
 -- :add_directory (refactored)
 INSERT INTO nxo_directories
- (org_abbrv, directory, host, port, bind, bind_pass,
-  tls_versions, autoregister, attr_uid, attr_mail, attr_fname, attr_lname)
+ (org_abbrv, directory, host, port, bind, bind_pass, tls_versions,
+  autoregister, attr_uid, attr_mail, attr_fname, attr_lname, base)
 VALUES
-  ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+  ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
 ON CONFLICT (directory, org_abbrv)
 DO UPDATE SET
   host = $3,
@@ -358,4 +371,5 @@ DO UPDATE SET
   attr_uid = $9,
   attr_mail = $10,
   attr_fname = $11,
-  attr_lname = $12;
+  attr_lname = $12,
+  base = $13;

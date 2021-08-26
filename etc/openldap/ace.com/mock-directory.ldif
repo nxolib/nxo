@@ -1,6 +1,12 @@
 ## passwords are the same as the uid
 
-dn: ou=testUsers,dc=acme,dc=com
+dn: dc=ace,dc=com
+dc: ace
+objectclass: dcObject
+objectclass: organization
+o: Ace, Inc.
+
+dn: ou=testUsers,dc=ace,dc=com
 ou: testUsers
 objectClass: top
 objectClass: organizationalUnit

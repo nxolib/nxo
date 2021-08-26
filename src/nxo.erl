@@ -31,6 +31,10 @@
         , is_authenticated/0
         , consult_file/3
         , random_password/1
+        , encrypt_binary/1
+        , encrypt_binary/2
+        , decrypt_binary/1
+        , decrypt_binary/2
         ]).
 
 -define(EVENT, nxo_event_handler).
@@ -250,3 +254,46 @@ random_password(Len) ->
     ChrsSize = size(Chrs),
     F = fun(_, R) -> [element(rand:uniform(ChrsSize), Chrs) | R] end,
     lists:foldl(F, "", lists:seq(1, Len)).
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+%% ENCRYPTION HELPERS %%
+%%%%%%%%%%%%%%%%%%%%%%%%
+encrypt_binary(Bin) ->
+  case application:get_env(nxo, enc_key, undefined) of
+    undefined ->
+      error("Neither enc_key configuration nor key specified");
+    EncKey ->
+      encrypt_binary(Bin, EncKey)
+  end.
+
+encrypt_binary(Bin, "file://" ++ File) ->
+  {ok, KeyString} = file:read_file(File),
+  encrypt_binary(Bin, KeyString);
+encrypt_binary(Bin, KeyString) ->
+  Key = crypto_key(KeyString),
+  IV = crypto:strong_rand_bytes(16),
+  Crypt = crypto:crypto_one_time(aes_128_ctr, Key, IV, Bin, true),
+  base64:encode(<<IV/binary, Crypt/binary>>).
+
+decrypt_binary(Bin) ->
+  case application:get_env(nxo, enc_key, undefined) of
+    undefined ->
+      error("Neither enc_key configuration nor key specified");
+    EncKey ->
+      decrypt_binary(Bin, EncKey)
+  end.
+
+decrypt_binary(Bin, "file://" ++ File) ->
+  {ok, KeyString} = file:read_file(File),
+  decrypt_binary(Bin, KeyString);
+decrypt_binary(Bin, KeyString) ->
+  Key = crypto_key(KeyString),
+  <<IV:16/bytes, Cyphertext/binary>> = base64:decode(Bin),
+  crypto:crypto_one_time(aes_128_ctr, Key, IV, Cyphertext, false).
+
+crypto_key(KeyString) ->
+  KeyBinary = wf:to_binary(KeyString),
+  Padded = <<KeyBinary/binary, 0:128>>,
+  <<Padded:128/bits>>.

@@ -80,6 +80,7 @@ CREATE TABLE IF NOT EXISTS nxo_directories (
   port         INTEGER NOT NULL,
   bind         TEXT NOT NULL,
   bind_pass    TEXT NOT NULL,
+  base         TEXT NOT NULL,
   tls_versions VARCHAR(16)[] NOT NULL DEFAULT ARRAY[]::VARCHAR(16)[],
   autoregister BOOLEAN NOT NULL DEFAULT FALSE,
   attr_uid     VARCHAR(64) NOT NULL DEFAULT 'uid',

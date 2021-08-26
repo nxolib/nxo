@@ -17,3 +17,5 @@
 {attr_fname, [required]}.
 
 {attr_lname, [required]}.
+
+{base, [required]}.
