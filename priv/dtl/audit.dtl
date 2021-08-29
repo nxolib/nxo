@@ -5,6 +5,7 @@
       <th>Event</th>
       <th>User</th>
       <th>Detail</th>
+      <th>Result</th>
       <th>Comment</th>
     </tr>
   {% for a in log %}
@@ -20,6 +21,9 @@
       </td>
       <td>
         {{ a.target }}
+      </td>
+      <td>
+        {{ a.result }}
       </td>
       <td>
         {{ a.comment }}
