@@ -45,9 +45,9 @@ record(Params) when is_map(Params) ->
 
 normalized_params(Params) ->
   %% activity and user_id are not optional.
-  maps:merge(#{ target => undefined,
-                result => undefined,
-                comment => undefined }, Params).
+  maps:merge(#{ target => [],
+                result => [],
+                comment => [] }, Params).
 
 audit_record_to_map(Record) ->
   lists:foldl(fun({I, E}, Acc) -> Acc#{E => element(I, Record)} end,

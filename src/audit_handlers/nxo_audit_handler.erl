@@ -1,5 +1,6 @@
 %%%-------------------------------------------------------------------
 -module(nxo_audit_handler).
+-include("nxo.hrl").
 -behaviour(gen_event).
 
 %% API
@@ -21,6 +22,11 @@ add_handler() ->
 init([]) ->
   {ok, #state{}}.
 
+handle_event(Record, State) when is_record(Record, audit) ->
+  ?PRINT({handling_event, Record}),
+  nxo_audit:record(Record),
+  {ok, State};
+
 handle_event({setting_change, {Group, Setting, Val, OldVal, User}}, State) ->
   Params = #{ activity => settings_change,
               user_id => User,
@@ -30,38 +36,8 @@ handle_event({setting_change, {Group, Setting, Val, OldVal, User}}, State) ->
   nxo_audit:record(Params),
   {ok, State};
 
-handle_event({api_key_change, User}, State) ->
-  Params = #{ activity => api_key_change,
-              user_id => User },
-  nxo_audit:record(Params),
-  {ok, State};
-
-handle_event({authentication_event, {User, Target, Result}}, State) ->
-  Params = #{ activity => authentication_event,
-              user_id => User,
-              target => Target,
-              result => Result},
-  nxo_audit:record(Params),
-  {ok, State};
-
-handle_event({authentication_event, {User, Target, Result, Comment}}, State) ->
-  Params = #{ activity => authentication_event,
-              user_id => User,
-              target => Target,
-              result => Result,
-              comment => Comment },
-  nxo_audit:record(Params),
-  {ok, State};
-
-handle_event({password_changed, UserID}, State) ->
-  Params = #{ activity => password_changed,
-              user_id => UserID,
-              target => undefined,
-              result => success },
-  nxo_audit:record(Params),
-  {ok, State};
-
-handle_event(_Event, State) ->
+handle_event(Event, State) ->
+  ?PRINT({unhandled_event, Event}),
   {ok, State}.
 
 handle_call(_Request, State) ->

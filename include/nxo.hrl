@@ -28,7 +28,11 @@
 -define(EVENT, nxo_event_handler).
 
 %% The audit record.
--record(audit, {activity, user_id, target, result, comment}).
+-record(audit, {activity = [],
+                user_id = [],
+                target = [],
+                result = [],
+                comment = []}).
 
 %%%%% MAIL STUFF
 %%
