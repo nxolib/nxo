@@ -23,21 +23,10 @@ init([]) ->
   {ok, #state{}}.
 
 handle_event(Record, State) when is_record(Record, audit) ->
-  ?PRINT({handling_event, Record}),
   nxo_audit:record(Record),
   {ok, State};
 
-handle_event({setting_change, {Group, Setting, Val, OldVal, User}}, State) ->
-  Params = #{ activity => settings_change,
-              user_id => User,
-              target => Group ++ "/" ++ Setting,
-              result => Val,
-              comment => "was: " ++ OldVal },
-  nxo_audit:record(Params),
-  {ok, State};
-
-handle_event(Event, State) ->
-  ?PRINT({unhandled_event, Event}),
+handle_event(_Event, State) ->
   {ok, State}.
 
 handle_call(_Request, State) ->

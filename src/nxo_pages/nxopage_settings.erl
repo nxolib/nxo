@@ -32,10 +32,14 @@ event({save, Group}) ->
                     end end, [], nxo_settings:group_settings(Group)),
   lists:foreach(fun({Setting, Value, OldValue}) ->
                     nxo_settings:set(Group, Setting, Value),
-                    nxo:notify({setting_change,
-                                {Group, Setting, Value, OldValue, wf:user()}})
+                    audit(Group, Setting, Value, OldValue, wf:user())
                 end, Changes),
   wf:update(settingpage, body()).
+
+audit(Group, Setting, Val, OldVal, User) ->
+  nxo:notify(#audit{activity=setting_change, user_id=User,
+                    target=Group ++ "/" ++ Setting,
+                    result=Val, comment="was: " ++ OldVal}).
 
 button({save_group, SettingGroup}) ->
   #button{ text="Save Settings",

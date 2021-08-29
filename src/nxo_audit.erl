@@ -41,7 +41,7 @@ record(Record) when is_record(Record, audit) ->
 
 record(Params) when is_map(Params) ->
   NormalizedParams = normalized_params(Params),
-  ?PRINT(nxo_db:q(audit_insert, NormalizedParams)).
+  [ok, _] = nxo_db:q(audit_insert, NormalizedParams).
 
 normalized_params(Params) ->
   %% activity and user_id are not optional.
