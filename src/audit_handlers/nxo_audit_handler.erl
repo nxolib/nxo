@@ -21,32 +21,27 @@ add_handler() ->
 init([]) ->
   {ok, #state{}}.
 
-handle_event({setting_change, {Group, Setting, Value, OldValue, User}},
-             State) ->
+handle_event({setting_change, {Group, Setting, Val, OldVal, User}}, State) ->
   Params = #{ activity => settings_change,
               user_id => User,
               target => Group ++ "/" ++ Setting,
-              result => Value,
-              comment => "was: " ++ OldValue },
-  nxo_db:q(audit_insert, Params),
+              result => Val,
+              comment => "was: " ++ OldVal },
+  nxo_audit:record(Params),
   {ok, State};
 
 handle_event({api_key_change, User}, State) ->
   Params = #{ activity => api_key_change,
-              user_id => User,
-              target => undefined,
-              result => undefined,
-              comment => undefined },
-  nxo_db:q(audit_insert, Params),
+              user_id => User },
+  nxo_audit:record(Params),
   {ok, State};
 
 handle_event({authentication_event, {User, Target, Result}}, State) ->
   Params = #{ activity => authentication_event,
               user_id => User,
               target => Target,
-              result => Result,
-              comment => undefined },
-  nxo_db:q(audit_insert, Params),
+              result => Result},
+  nxo_audit:record(Params),
   {ok, State};
 
 handle_event({authentication_event, {User, Target, Result, Comment}}, State) ->
@@ -55,16 +50,15 @@ handle_event({authentication_event, {User, Target, Result, Comment}}, State) ->
               target => Target,
               result => Result,
               comment => Comment },
-  nxo_db:q(audit_insert, Params),
+  nxo_audit:record(Params),
   {ok, State};
 
 handle_event({password_changed, UserID}, State) ->
   Params = #{ activity => password_changed,
               user_id => UserID,
               target => undefined,
-              result => success,
-              comment => undefined },
-  nxo_db:q(audit_insert, Params),
+              result => success },
+  nxo_audit:record(Params),
   {ok, State};
 
 handle_event(_Event, State) ->
