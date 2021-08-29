@@ -40,11 +40,11 @@ init([]) ->
 
   %% manage event handlers
   start_event_handler(),
-  nxo_audit:add_handler(nxo_audit_handler),
+  nxo_event:add_handler(nxo_audit_handler),
 
   case nxo:is_development() of
     true ->
-      nxo_audit:add_handler(nxo_development_handler),
+      nxo_event:add_handler(nxo_development_handler),
       sync:go();
     false -> ok
   end,

@@ -1,41 +1,49 @@
 -module(nxo_audit).
 -include("nxo.hrl").
 -export([
-          event_handler/0
-        , notify/1
-        , add_handler/1
-        , add_handler/2
-        , delete_handler/1
-        , delete_handler/2
-        , record/1
+          record/1
         , audit_record_to_map/1
         ]).
 
-notify(Msg) ->
-  gen_event:notify(event_handler(), Msg).
+%% Some notes about NXO auditing (and event management).
+%%
+%% The NXO application starts an event handler on startup.  The PID of
+%% the event handler is available via nxo_event:event_handler().
+%%
+%% The nxo_event module contains some convenience functions to
+%% add/delete handlers as well as the notify/1 function that sends a
+%% gen_event:notify to the NXO handler.
+%%
+%% NXO contains two default handlers (which may, of course, be removed
+%% when implementing applications with NXO):
+%%
+%%    nxo_development_handler: when is_development() is true, this
+%%    handler is installed.  It simply prints all events to the
+%%    terminal.
+%%
+%%    nxo_audit_handler: receives notifications with an #audit{}
+%%    record as its parameter and inserts that record into the DB.  It
+%%    does this asynchronously.
+%%
+%% Note there's a convenience metnod, audit_record_to_map/1, that will
+%% convert an #audit{} record into a DB appropriate parameter map.
+%%
+%% The nxo_audit table does not allow NULLs; unsupplied values are
+%% empty strings.
+%%
+%% The record is defined with the fields:
+%%
+%%    - activity
+%%    - user_id
+%%    - target
+%%    - result
+%%    - comment
+%%
+%% Of these, only activity and user_id are required.
+%%
+%% This module is called by the nxo_audit_handler to format the
+%% #audit{} and insert it into the nxo_audit table in the DB.
 
-%% @doc Returns the PID of the NXO event handler.
--spec event_handler() -> pid().
-event_handler() ->
-  nprocreg:get_pid(?EVENT).
-
-%% @doc Adds an event handler
-add_handler(Module) ->
-  add_handler(Module, []).
-
-add_handler(Module, Args) ->
-  gen_event:add_handler(event_handler(), Module, Args).
-
-%% @doc Deletes an event handler
-delete_handler(Module) ->
-  delete_handler(Module, []).
-
-delete_handler(Module, Args) ->
-  gen_event:delete_handler(event_handler(), Module, Args).
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% FUNCTIONS FOR THE DEFAULT NXO_AUDIT_HANDLER %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 record(Record) when is_record(Record, audit) ->
   record(audit_record_to_map(Record));
 

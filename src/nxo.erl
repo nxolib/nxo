@@ -180,7 +180,7 @@ global_auth_allowed() ->
 %% @doc Send an event notification to the NXO event handler.
 -spec notify(Msg :: any()) -> ok.
 notify(Msg) ->
-  nxo_audit:notify(Msg).
+  nxo_event:notify(Msg).
 
 %% @doc Safely execute wf:user(); return username or 'undefined'.
 -spec user() -> any() | undefined.

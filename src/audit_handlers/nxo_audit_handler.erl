@@ -23,7 +23,7 @@ init([]) ->
   {ok, #state{}}.
 
 handle_event(Record, State) when is_record(Record, audit) ->
-  nxo_audit:record(Record),
+  spawn(nxo_audit, record, [Record]),
   {ok, State};
 
 handle_event(_Event, State) ->

@@ -50,8 +50,8 @@ process_request() ->
     false -> ok
   end,
 
-  %nxo:notify({acct_request, UID, wf:params()}),
-  nxo:notify(#audit{ activity = acct_request, user_id = UID }).
+  nxo:notify(#audit{ activity = acct_request, user_id = UID }),
+
 
 
   %% add project information
