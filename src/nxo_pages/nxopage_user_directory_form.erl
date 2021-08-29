@@ -48,11 +48,9 @@ event(organization_changed) ->
   end.
 
 autocomplete_select_event(Element, _Tag) ->
-  %% V = proplists:get_value(<<"id">>, Element),
-  %% [Mail, OrgAbbrv, Directory] = string:split(V, ";;", all),
   wf:set(entry_specs, proplists:get_value(<<"id">>, Element)),
   wf:enable(continue).
-  %% ?PRINT({Mail, OrgAbbrv, Directory}).
+
 
 
 autocomplete_enter_event(Term, _Tag) ->
