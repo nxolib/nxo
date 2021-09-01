@@ -36,7 +36,7 @@
     <label for="description">Description</label>
     <input type="text"
            class="form-control wfid_description"
-           value="[[[nxo_forms:form_value(description)]]]"
+           value="{{ description }}"
            id="description" />
     <small id="description_help" class="form-text text-muted">
       Optional

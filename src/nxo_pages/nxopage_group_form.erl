@@ -37,6 +37,9 @@ submission() ->
   case nxo_validate:validate(group_form, #{group_id => wf:path_info()}) of
     true ->
       nxo_db:q(group_add, nxo_datamap:apply(group_form)),
+      nxo:notify(#audit{ activity=group_mgmt,
+                         user_id = wf:user(),
+                         target = wf:q(group_name) }),
       wf:redirect("/groups");
     false ->
       nxo_view:report_validation_failure()

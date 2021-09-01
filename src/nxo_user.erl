@@ -45,13 +45,13 @@ toggle_active_flag(_, _) ->
 maybe_confirm_account(ID) ->
   case nxo_roles:delete_role(ID, <<"global::pending">>) of
     false -> ok;
-    true  -> nxo:notify({account_confirmed, ID})
+    true  -> nxo:notify(#audit{activity=account_confirmed, user_id=ID})
   end.
 
 %% @doc Change user password.
 change_password(User, PlainPW) ->
   HashedPW = erlpass:hash(PlainPW),
   case nxo_db:q(user_set_password, [User, HashedPW], raw) of
-    {ok, 1} -> nxo:notify({password_changed, User});
+    {ok, 1} -> nxo:notify(#audit{activity=password_changed, user_id=User});
     _       -> failed
   end.

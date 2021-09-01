@@ -31,11 +31,6 @@ init([]) ->
                 , erlpass
                 ]),
 
-  case nxo:is_development() of
-    true -> sync:go();
-    false -> ok
-  end,
-
   %% a db keep-alive process
   spawn(?MODULE, ping_db, []),
 
@@ -45,12 +40,16 @@ init([]) ->
 
   %% manage event handlers
   start_event_handler(),
-  nxo:add_handler(nxo_audit_handler),
+  nxo_event:add_handler(nxo_audit_handler),
 
-  SupFlags = #{strategy => one_for_one,
-               intensity => 1,
-               period => 5},
+  case nxo:is_development() of
+    true ->
+      nxo_event:add_handler(nxo_development_handler),
+      sync:go();
+    false -> ok
+  end,
 
+  SupFlags = #{strategy => one_for_one, intensity => 1, period => 5},
   {ok, {SupFlags, []}}.
 
 
