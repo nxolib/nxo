@@ -21,3 +21,4 @@ rebar3.crashdump
 .\#*
 \#*
 .sass-cache
+priv/static/nitrogen
