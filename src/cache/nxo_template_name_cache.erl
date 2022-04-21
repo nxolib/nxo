@@ -42,7 +42,7 @@ html_dirs() ->
     undefined ->
       error('html_template_dir not defined');
     {ok, Paths} ->
-      parse_paths(Paths, [])
+      parse_paths(lists:reverse(Paths), [])
   end.
 
 parse_paths([], Acc) ->
