@@ -6,6 +6,7 @@
         , has_role/3
         , add_role/2
         , delete_role/2
+        , pending_user_count/0
         , init/0
         , lookup/1
         , flush/0
@@ -51,6 +52,10 @@ delete_role(UserID, Role) ->
   flush(),
   maps:get(count, Res) == 1.
 
+%% @doc A count of users with the global::pending role.
+-spec pending_user_count() -> integer().
+pending_user_count() ->
+  nxo_db:q(pending_user_count).
 
 %%%%%%%%%%%%%%%%%%%%%%%
 %% CACHING FUNCTIONS %%

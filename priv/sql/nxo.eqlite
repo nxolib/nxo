@@ -138,8 +138,8 @@ ORDER BY org_name;
 
 -- :pending_user_count
 SELECT COUNT(*)
-FROM nxo_user_groups
-WHERE group_id = pending_group()
+FROM nxo_users
+WHERE '{ "global::pending" }' && roles;
 
 -- ROLES
 -- :has_role (refactored)
@@ -155,7 +155,6 @@ WHERE user_id = $1::UUID
 SELECT roles
 FROM nxo_users
 WHERE user_id = $1::uuid;
-
 
 -- :settings_get_group
 SELECT setting_group, setting_name, setting_display,
