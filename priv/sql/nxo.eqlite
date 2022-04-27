@@ -71,6 +71,11 @@ WHERE group_name = $1
 -- FROM nxo_groups
 -- WHERE group_name = $1;
 
+-- :all_realms
+SELECT realm, groups
+FROM nxo_realms
+ORDER BY realm;
+
 -- :insert_realm (refactored)
 INSERT INTO nxo_realms (realm, description, required, group_ids)
 VALUES ($1, $2, $3, $4)

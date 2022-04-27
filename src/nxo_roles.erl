@@ -12,7 +12,7 @@
         ]).
 
 -define(GLOBAL_ORG, <<"global">>).
--define(CACHE, nxo_role_cahce).
+-define(CACHE, nxo_role_cache).
 -define(EXPIRE_TIME, 60*60*1000).
 
 %% @doc Return a list of roles the specified user assumes.
@@ -21,6 +21,7 @@ all(EmailOrID) ->
   UserID = nxo_user:id(EmailOrID),
   nxo_db:q(all_roles, [UserID]).
 
+%% @doc Test if a UserID participates in a Role or Realm.
 has_role(undefined, _) ->
   false;  %% wf:user() returns undefined when not logged in.
 has_role(UserID, Role) ->

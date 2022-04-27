@@ -5,7 +5,7 @@ NXO Refactoring TODOs
   - [x] Factor out 2FA code.
   - [x] update nxo_security_handler to use a custom *_not_authorized:
     the app designer should be able to specify a module;
-  - [ ] bootstrap rebar3 plugin?
+  - [x] bootstrap rebar3 plugin?
   - [x] bottom admin buttons
   - [x] implement page for retrieving audit data
   - [ ] make nxo_authz dynamic and run-time configured
