@@ -16,7 +16,7 @@ Authorization
 Authorization to perform a function is ultimately based on a user
 participating in a _Role_.  Let's look at how Roles are constructed.
 
-## Components of the Authorization Schema
+## Components of the Authorization Scheme
 
 ### Organizations
 
