@@ -15,7 +15,10 @@
 -define(CACHE, nxo_role_cahce).
 -define(EXPIRE_TIME, 60*60*1000).
 
-all(UserID) ->
+%% @doc Return a list of roles the specified user assumes.
+-spec all(EmailOrID :: string()) -> [ binary() ].
+all(EmailOrID) ->
+  UserID = nxo_user:id(EmailOrID),
   nxo_db:q(all_roles, [UserID]).
 
 has_role(undefined, _) ->
