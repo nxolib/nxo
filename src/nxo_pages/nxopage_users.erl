@@ -19,7 +19,8 @@ title() -> "User Management".
 
 body() ->
   Users = nxo_user:all(),
-  #template{ text=nxo_template:pretty_render(user_list, #{users => Users}) }.
+  #template{ text=nxo_template:pretty_render(user_list,
+                                             #{users => Users}) }.
 
 event(help) ->
   Button = #button{ class="btn btn-primary",
