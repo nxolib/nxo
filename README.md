@@ -31,6 +31,15 @@ NXO Administration UI.
 The only required Organization is "global" and not all NXO
 applications will need more Organizations defined.
 
+``` text
+tbdb_db=# select * from nxo_orgs;
+ org_abbrv |    org_name    |      description
+-----------+----------------+------------------------
+ global    | Global Default | Default Organization
+ ace       | Ace Corp.      | Ace Test Organization
+ acme      | Acme Co.       | Acme Test Organization
+```
+
 ### Groups
 
 Groups are a way of naming buckets of functionality.  For instance
@@ -44,6 +53,19 @@ Administration UI.
 Note that some Groups are denoted as "Global."  This limits their
 participation in certain Roles, described below.
 
+``` text
+tbdb_db=# select * from nxo_groups;
+   group_name   |      group_label      |    description     | global_only
+----------------+-----------------------+--------------------+-------------
+ users          | Site User             | Default User Group | f
+ administrators | Global Administrators | All Access         | t
+ usermgmt       | User Managers         | User Managers      | f
+ datamgmt       | Data Managers         | Data Managers      | f
+ passwd         | Stale Password        | Requres PW Change  | t
+ api            | API Users             | API Access         | f
+ pending        | Pending Users         | Pending Users      | t
+```
+
 ### Roles
 
 Roles are the combination of Organization + Group.  For instance,
@@ -56,6 +78,22 @@ Organizations and Groups.
 Note that all Groups are "available" to the global organization.
 However, Groups marked as "Global" are **only** available to the
 global organization.
+
+``` text
+tbdb_db=# select user_id, active, roles from nxo_users;
+-[ RECORD 1 ]-------------------------------------------------------------
+user_id | 7f38d2e4-c415-4079-ad41-d071feb89418
+active  | t
+roles   | {global::administrators,global::usermgmt,global::users}
+-[ RECORD 2 ]-------------------------------------------------------------
+user_id | 45b11c8b-4b5a-428c-9fb2-a0580f6de974
+active  | t
+roles   | {global::users,acme::datamgmt,acme::users,ace::users,ace::usermgmt}
+-[ RECORD 3 ]-------------------------------------------------------------
+user_id | 79c6026d-7127-40d8-bd1e-eb7522bffb27
+active  | t
+roles   | {global::users}
+```
 
 ### Realms
 
@@ -72,6 +110,26 @@ definition will change but the application code need not.
 
 Note that Realms are defined in the database and are not currently
 exposed in the UI.
+
+``` text
+tbdb_db=# select * from nxo_realms ;
+-[ RECORD 1 ]------------------------------------------------------
+realm  | global::admin_something
+groups | {global::administrators,global::usermgmt,global::datamgmt}
+-[ RECORD 2 ]------------------------------------------------------
+realm  | global::admin_everything
+groups | {global::administrators}
+-[ RECORD 3 ]------------------------------------------------------
+realm  | global::admin_users
+groups | {global::administrators,global::usermgmt}
+-[ RECORD 4 ]------------------------------------------------------
+realm  | global::admin_data
+groups | {global::administrators,global::datamgmt}
+-[ RECORD 5 ]------------------------------------------------------
+realm  | global::api
+groups | {global::administrators,global::api}
+
+```
 
 ## Inactive Users
 
