@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS nxo_user_phone (
 
 CREATE TABLE IF NOT EXISTS nxo_realms (
   realm  VARCHAR(128) NOT NULL PRIMARY KEY,
-  groups TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[]
+  roles  TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[]
 );
 
 CREATE TABLE IF NOT EXISTS nxo_api_keys (
@@ -137,7 +137,7 @@ INSERT INTO nxo_orgs(org_name, org_abbrv, description)
     ('Acme Co.',       'acme',   'Acme Test Organization')
   ON CONFLICT DO NOTHING;
 
-INSERT INTO nxo_realms (realm, groups)
+INSERT INTO nxo_realms (realm, roles)
   VALUES
   ('global::admin_something',
     '{ "global::administrators", "global::usermgmt", "global::datamgmt" }'),

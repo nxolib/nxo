@@ -17,7 +17,7 @@ all() ->
 %% @doc A map of realms and associated roles.
 -spec realm_map() -> #{ binary() => [ binary() ] }.
 realm_map() ->
-  maps:from_list([ {maps:get(<<"realm">>, M), maps:get(<<"groups">>, M)}
+  maps:from_list([ {maps:get(<<"realm">>, M), maps:get(<<"roles">>, M)}
                    || M <- nxo_db:q(all_realms) ]).
 
 %% @doc A list of realms the user belongs to.

@@ -44,7 +44,7 @@ tbdb_db=# select * from nxo_orgs;
 
 Groups are a way of naming buckets of functionality.  For instance
 "Site User", "Global Administrators", and "Data Managers" are all
-groups.  Groups have labels (as above) and names ("users",
+groups.  Groups have label (as above) and names ("users",
 "administrators", "datamgmt") that are used internally.  Users **do
 not** belong to groups directly (although the User Management UI hides
 that detail from adminstrators).  Groups are managed in the NXO
@@ -115,19 +115,19 @@ exposed in the UI.
 tbdb_db=# select * from nxo_realms ;
 -[ RECORD 1 ]------------------------------------------------------
 realm  | global::admin_something
-groups | {global::administrators,global::usermgmt,global::datamgmt}
+roles | {global::administrators,global::usermgmt,global::datamgmt}
 -[ RECORD 2 ]------------------------------------------------------
 realm  | global::admin_everything
-groups | {global::administrators}
+roles | {global::administrators}
 -[ RECORD 3 ]------------------------------------------------------
 realm  | global::admin_users
-groups | {global::administrators,global::usermgmt}
+roles | {global::administrators,global::usermgmt}
 -[ RECORD 4 ]------------------------------------------------------
 realm  | global::admin_data
-groups | {global::administrators,global::datamgmt}
+roles | {global::administrators,global::datamgmt}
 -[ RECORD 5 ]------------------------------------------------------
 realm  | global::api
-groups | {global::administrators,global::api}
+roles | {global::administrators,global::api}
 
 ```
 
