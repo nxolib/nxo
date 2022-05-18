@@ -8,6 +8,7 @@
         , version/0
         , version/1
         , keys_to_binary/1
+        , keys_to_atom/1
         , is_string/1
         , fa/1
         , pickle/1
@@ -71,6 +72,11 @@ version(App) ->
 -spec keys_to_binary(map()) -> map().
 keys_to_binary(Map) when is_map(Map) ->
   Fun = fun(K, V, NewMap) -> maps:put(wf:to_binary(K), V, NewMap) end,
+  maps:fold(Fun, #{}, Map).
+
+%% Cases map keys to atoms.  This is mildly dangerous.
+keys_to_atom(Map) when is_map(Map) ->
+  Fun = fun(K, V, NewMap) -> maps:put(wf:to_atom(K), V, NewMap) end,
   maps:fold(Fun, #{}, Map).
 
 %% Returns true if the Term is a string.
