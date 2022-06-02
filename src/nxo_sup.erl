@@ -10,7 +10,7 @@ start_link() ->
 
 init([]) ->
   nxo_db:start(),
-  nxo_db:apply_full_ddl(),
+  % nxo_db:apply_full_ddl(),
   nxo_template:compile_all(),
   nxo_settings:init(),
 
