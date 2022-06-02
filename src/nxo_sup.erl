@@ -12,7 +12,7 @@ init([]) ->
   nxo_db:start(),
   % nxo_db:apply_full_ddl(),
   nxo_template:compile_all(),
-  nxo_settings:init(),
+  % nxo_settings:init(),
 
   %% We're only allowed one document_root yet we might need to serve
   %% up files from priv_dir(nxo)/nxostatic or priv_dir(app)/static.
