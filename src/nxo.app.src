@@ -18,6 +18,7 @@
                           , rekt
                           , nxo_db
                           , nxo_template
+                          , erlpass
                           ]},
   {applications,
    [kernel,
