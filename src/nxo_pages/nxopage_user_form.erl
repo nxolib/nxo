@@ -113,9 +113,7 @@ submission(UserID) ->
       case wf:q(source) == "directory" of
         true ->
           DirParams = [UserID, wf:q(directory_org), wf:q(directory)],
-          ?PRINT(DirParams),
           Res = nxo_db:q(user_directory_add, DirParams),
-          ?PRINT(Res);
         false ->
           ok
       end,

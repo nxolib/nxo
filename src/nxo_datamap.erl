@@ -108,10 +108,11 @@ trim_list(NotList) when not is_list(NotList) ->
 trim_list(List) ->
   [ trim(wf:to_binary(L)) || L <- List ].
 
-passwd(Str) when length(Str) == 60 ->
-  Str;
 passwd(Str) ->
-  erlpass:hash(Str).
+  case length(string:trim(Str)) == 60 of
+    true -> Str;
+    false -> erlpass:hash(Str)
+  end.
 
 encrypt(Str) ->
   nxo:encrypt_binary(Str).
