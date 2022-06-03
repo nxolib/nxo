@@ -17,6 +17,7 @@
                           , uuid
                           , rekt
                           , bbmoustache
+                          , eldap
                           , nxo_db
                           , nxo_template
                           , erlpass
