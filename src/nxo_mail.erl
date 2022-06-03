@@ -63,9 +63,38 @@ read_template(TemplateFile) ->
   {ok, Template} = file:read_file(FilePath),
   Template.
 
-template_path(TemplateFile) ->
-  filename:join([code:priv_dir(?APP), ?TEMPLATE_DIR, TemplateFile]).
 
+%% TODO: This template stuff has an analogue in
+%% nxo_template_name_cache.  It'd be nice to refactor it into a little
+%% library routine.
+template_path(Template) when is_binary(Template); is_atom(Template) ->
+  template_path(wf:to_list(Template));
+template_path(Template) ->
+  find_template(filename:join(["**", Template]), mail_template_dirs()).
+
+find_template(Template, []) ->
+  error("Mail Template " ++ Template ++ " not found.");
+find_template(Template, [H|T]) ->
+  case filelib:wildcard(Template, H) of
+    [X | _] -> filename:join([H, X]);
+    []      -> find_template(Template, T)
+  end.
+
+mail_template_dirs() ->
+  case application:get_env(nxo, mail_template_dir) of
+    undefined ->
+      error('mail_template_dir not defined');
+    {ok, Paths} ->
+      parse_paths(lists:reverse(Paths), [])
+  end.
+
+parse_paths([], Acc) ->
+  lists:reverse(Acc);
+parse_paths([{priv_dir, App, SubDir}|T], Acc) ->
+  Path = filename:join(code:priv_dir(App), SubDir),
+  parse_paths(T, [Path | Acc]);
+parse_paths([{path, Path}|T], Acc) ->
+  parse_paths(T, [Path | Acc]).
 
 mail_server()    -> nxo_settings:get(mail, smtp_host).
 mail_port()      -> wf:to_integer(nxo_settings:get(mail, smtp_port)).

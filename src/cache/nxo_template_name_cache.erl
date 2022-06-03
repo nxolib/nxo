@@ -21,7 +21,7 @@ lookup(Template) ->
 
 
 find_template(Template) when is_binary(Template); is_atom(Template) ->
-  find_template(nxo:to_list(Template));
+  find_template(wf:to_list(Template));
 find_template(Template) when is_list(Template) ->
   Filename = case lists:suffix(".html", Template) of
                true -> Template;
