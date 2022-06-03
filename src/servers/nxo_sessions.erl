@@ -19,7 +19,7 @@
         , event/1
         , show_warning/1
         , do_warning/1
-        , do_terminate/1
+        , do_terminate/2
         ]).
 
 %% gen_server callbacks
@@ -60,7 +60,7 @@ is_registered(ID) ->
 kill(State) when is_map(State) ->
   kill(maps:get(id, State));
 kill(ID) ->
-  gen_server:cast(?SERVER(ID), kill).
+  gen_server:cast(?SERVER(ID), {kill, ID}).
 
 
 %%%===================================================================
@@ -85,8 +85,8 @@ handle_cast(show_warning, State) ->
   ?MODULE:do_warning(State),
   {noreply, State, maps:get(warning, State, ?WARNING_TIME)};
 
-handle_cast(kill, State) ->
-  ?MODULE:do_terminate(State),
+handle_cast({kill, UserID}, State) ->
+  ?MODULE:do_terminate(State, UserID),
   {stop, normal, State}.
 
 handle_info(timeout, State) ->
@@ -128,13 +128,13 @@ display_warning_modal(State) ->
   Title = "Inactive Session Warning",
   nxo_modal:open({}, Title, Body, [{modal_footer, Button}]).
 
-do_terminate(State) ->
+do_terminate(State, UserID) ->
   wf_context:context(maps:get(ctx, State)),
   wf_context:clear_action_queue(),
   nxo:notify(#audit{ activity=authentication,
-                     user_id = wf:user(),
+                     user_id = UserID,
                      target = logout,
-                     comment = success }),
+                     result = success }),
   wf:logout(),
   wf:session(auth_message, "Logged out due to inactivity."),
   wf:redirect("/login"),
