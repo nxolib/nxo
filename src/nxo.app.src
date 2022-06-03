@@ -17,6 +17,7 @@
                           , uuid
                           , rekt
                           , bbmustache
+                          , gen_smtp
                           , eldap
                           , nxo_db
                           , nxo_template
