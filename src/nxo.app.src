@@ -16,7 +16,7 @@
                           , qdate
                           , uuid
                           , rekt
-                          , bbmoustache
+                          , bbmustache
                           , eldap
                           , nxo_db
                           , nxo_template
