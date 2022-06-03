@@ -16,6 +16,7 @@
                           , qdate
                           , uuid
                           , rekt
+                          , bbmoustache
                           , nxo_db
                           , nxo_template
                           , erlpass
