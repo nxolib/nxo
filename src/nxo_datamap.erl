@@ -110,7 +110,7 @@ trim_list(List) ->
 
 passwd(Str) ->
   case length(string:trim(Str)) == 60 of
-    true -> Str;
+    true -> string:trim(Str);
     false -> erlpass:hash(Str)
   end.
 
