@@ -1,5 +1,6 @@
 -module(nxo_directory).
 -include("nxo.hrl").
+-include_lib("eldap/include/eldap.hrl").
 
 -export([
          %% functions to manage directory definitions
@@ -73,8 +74,9 @@ directory_search(account, Ident, DirMap) ->
     Handle ->
       Filter = filter(account, Ident, DirMap),
       Attrs = attributes(account, DirMap),
-      {ok, {eldap_search_result, Entries, _}} =
+      {ok, Res} =
         eldap:search(Handle, [{base, base(DirMap)}, Filter, Attrs]),
+      Entries = Res.eldap_search_results.entries,
       result_to_map(account, Entries, DirMap)
   end;
 
@@ -85,8 +87,9 @@ directory_search(entry, Email, DirMap) ->
     Handle ->
       Filter = filter(entry, Email, DirMap),
       Attrs = attributes(account, DirMap),
-      {ok, {eldap_search_result, Entries, _}} =
+      {ok, Res} =
         eldap:search(Handle, [{base, base(DirMap)}, Filter, Attrs]),
+      Entries = Res.eldap_search_results.entries
       result_to_map(account, Entries, DirMap)
   end.
 
