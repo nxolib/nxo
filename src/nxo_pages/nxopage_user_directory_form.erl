@@ -59,7 +59,7 @@ autocomplete_enter_event(Term, _Tag) ->
                {label, autocomplete_label(Entry)},
                {value, maps:get(mail, Entry)}]
               || Entry <- nxo_directory:search(account, Term, OrgAbbrv) ],
-  jsx:encode(Results).
+  jiffy:encode(Results).
 
 
 button(submit) ->

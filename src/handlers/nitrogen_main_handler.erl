@@ -4,6 +4,7 @@
          run/0,
          ws_init/0
         ]).
+-include("nxo.hrl").
 
 handlers() ->
 %%  nitrogen:handler(nxo_role_handler, []),
@@ -15,6 +16,13 @@ handlers() ->
     true -> nitrogen:handler(debug_crash_handler, []);
     false -> ok
   end,
+
+  try apply(nxo:application(), handlers, []) of
+    _ -> ok
+  catch
+    _ -> ok
+  end,
+
   ok.
 
 ws_init() ->
