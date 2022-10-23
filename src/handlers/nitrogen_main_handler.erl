@@ -6,10 +6,10 @@
         ]).
 
 handlers() ->
-  nitrogen:handler(nxo_role_handler, []),
+%%  nitrogen:handler(nxo_role_handler, []),
   nitrogen:handler(nxo_route_handler, []),
-  nitrogen:handler(nxo_postback_handler, []),
-  nitrogen:handler(nxo_security_handler, []),
+%%  nitrogen:handler(nxo_postback_handler, []),
+%%  nitrogen:handler(nxo_security_handler, []),
 
   case nxo:is_development() of
     true -> nitrogen:handler(debug_crash_handler, []);
