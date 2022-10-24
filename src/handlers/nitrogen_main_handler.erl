@@ -22,7 +22,6 @@ handlers() ->
   catch
     _ -> ok
   end,
-
   ok.
 
 ws_init() ->

@@ -5,6 +5,7 @@
         , flush/0
         ]).
 
+-include("nxo.hrl").
 -define(CACHE, nxo_template_name_cache).
 -define(EXPIRE_TIME, 24 * 60 * 60 * 1000).
 
@@ -46,7 +47,7 @@ html_dirs() ->
   end.
 
 parse_paths([], Acc) ->
-  lists:reverse(Acc);
+  Acc;
 parse_paths([{priv_dir, App, SubDir}|T], Acc) ->
   Path = filename:join(code:priv_dir(App), SubDir),
   parse_paths(T, [Path | Acc]);
